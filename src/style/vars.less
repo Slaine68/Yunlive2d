@@ -1,0 +1,68 @@
+
+
+// 浅色主题
+    //深灰
+    @bright-dark:#444444;
+    @bright-darkopa:#333333bb;
+    @blue:#2196f3;
+    @green:#19a993;
+    @yellow:#ffc107;
+    @gold:#fcff5f;
+    @pink:#ff759e;
+    @black:#5d594f;
+    @brown:#57423f;
+    @red:#ca1a0d;
+    @white:#ddd;
+    
+    //缺右上角
+    .subcorner-right-top(@x:15%,@y:90%){
+        clip-path: polygon(100% @x, 100% 100%, 0 100%, 0 0, @y 0);
+      }
+      //缺右下角
+    .sub-corner-right-bottom(@x:90%,@y:90%){
+    clip-path: polygon(100% 0, 100% @x, @y 100%, 0 100%, 0 0);
+    }
+      //左上 右下方块
+    .lefttop-rightbottom(@x:30%,@y:30%){
+      clip-path: polygon(0 0, @x 0%, @x @y, 0 @y, 0% 100%, 100% 100%, 100% calc(100% - @y),  calc(100% - @x) calc(100% - @y) , calc(100% - @x) 100%, 0 100%);
+      }
+
+      
+//
+//
+//动画
+//
+
+//纵向及淡入的模板
+.slide(@x:0px,@y:0px) {
+    transform: translateX(@x) translateY(@y);
+  }
+  //模板函数
+  .keyframesSlide(@name,@x:0px, @y:0px) {
+    @keyframes @name {
+      0% {
+        opacity: 0;
+        .slide(@x, @y);
+      }
+      100% {
+        opacity: 1;
+        .slide();
+      }
+    }
+  }
+  .keyframesFadeInOut(@name,@x:0px, @y:0px) {
+    @keyframes @name {
+      0% {
+        opacity: 1;
+        .slide();
+      }
+      30% {
+        opacity: 0;
+        .slide(@x, @y);
+      }
+      100% {
+        opacity: 1;
+        .slide();
+      }
+    }
+  }

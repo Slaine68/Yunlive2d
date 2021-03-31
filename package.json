@@ -1,0 +1,46 @@
+{
+    "private": true,
+    "scripts": {
+        "start": "webpack-dev-server --progress",
+        "build": "webpack -d --hide-modules",
+        "build:prod": "webpack -p --hide-modules",
+        "analyz": "NODE_ENV=production npm_config_report=true npm run build",
+        "test": "tsc --noEmit",
+        "lint": "eslint src -f codeframe --ext .ts",
+        "lint:fix": "eslint src -f codeframe --ext .ts --fix",
+        "serve": "serve ../../.. -p 5000",
+        "clean": "rimraf dist"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.18.0",
+        "@typescript-eslint/parser": "^2.18.0",
+        "css-loader": "^3.5.3",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.10.0",
+        "eslint-plugin-prettier": "^3.1.2",
+        "file-loader": "^6.0.0",
+        "less": "^3.11.1",
+        "less-loader": "^6.1.0",
+        "prettier": "^1.19.1",
+        "rimraf": "^3.0.1",
+        "sass-resources-loader": "^2.0.3",
+        "serve": "^11.3.0",
+        "style-loader": "^1.2.1",
+        "ts-loader": "^6.2.1",
+        "typescript": "^3.7.5",
+        "url-loader": "^4.1.0",
+        "webpack": "^4.41.5",
+        "webpack-bundle-analyzer": "^3.8.0",
+        "webpack-cli": "^3.3.10",
+        "webpack-dev-server": "^3.10.1"
+    },
+    "dependencies": {
+        "base64-arraybuffer": "^0.2.0",
+        "html2canvas": "^1.0.0-rc.5",
+        "vue": "^2.6.11",
+        "vue-loader": "^15.9.2",
+        "vue-template-compiler": "^2.6.11",
+        "vuex": "^3.4.0",
+        "whatwg-fetch": "^3.0.0"
+    }
+}

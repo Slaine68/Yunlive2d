@@ -1,0 +1,221 @@
+
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: white;
+  // font-size: 1.8rem;
+  font-family: '微软雅黑';
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: black;
+}
+
+.small-title-font{
+  font-size: 0.6rem;
+}
+
+#mainblock {
+  position: relative;
+  top: 0;
+  overflow: hidden;
+}
+
+#bkg {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.dialog {
+  width: 70%;
+  z-index: 99;
+
+}
+
+#mask {
+  opacity: 0;
+  background: black;
+  z-index: 100;
+  transition: opacity 1s ease;
+}
+
+canvas {
+  position: absolute;
+}
+
+#topDialog{
+  text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0;
+}
+#topDialog,
+#movieDialog,
+#titleBlock {
+  text-align: center;
+  transition: all 0.5s ease;
+}
+
+#titleBlock {
+  position: relative;
+  z-index: 1001;
+}
+
+.bechanges {
+  transition: filter 2s ease-out,opacity 0.8s ease;
+}
+
+.shake {
+  animation: shakeTopx 1s;
+}
+
+@keyframes shakeTopx {
+
+  0%,
+  100% {
+    transform: translate(0px,0px);
+  }
+
+  5% {
+    transform: translate(-10px,50px);
+  }
+
+  10%,
+  20%,
+  30% {
+    transform: translate(10px,-50px);
+  }
+
+  15%,
+  25%,
+  35% {
+    transform: translate(0px,50px);
+  }
+
+  40% {
+    transform: translate(20px,25px);
+  }
+
+  45% {
+    transform: translate(-20px,-25px);
+  }
+
+  50% {
+    transform: translate(10px,40px);
+  }
+}
+
+
+//字体大小
+//1440->28
+//1200->26
+//1080->24
+
+.re(@width){
+  @xs : 12px+(@width/100px);
+  @media (min-width:(@width + 2px)){
+      html{
+          font-size:@xs;
+      }
+  }
+}
+
+.re(400px);
+.re(600px);
+.re(800px);
+.re(900px);
+.re(1000px);
+.re(1200px);
+.re(1400px);
+.re(1600px);
+.re(1800px);
+
+//
+//
+//flex布局
+//
+//
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.flex-row-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.flex-father-full{
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+.full-screen {
+  position: absolute;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+
+//通用
+.pointer{
+  cursor: pointer;
+}
+
+//点击的扩散动画
+@-webkit-keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 #fff;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 #fff;
+  }
+}
+
+//点击横向切换的动画
+
+@keyframes chick {
+  0% {
+    opacity: 1;
+    background:  #252829;
+    width: 100%;
+  }
+}
+
+//todo:使用关键帧制作的通用动画
+
+
+//淡入淡出
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+//滑动进入
+.slide-fade-enter-active{
+  transition: all 1s ease;
+}
+.slide-fade-leave-active{
+  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to{
+  transform: translateX(50px);
+  opacity: 0;
+}
+
+
