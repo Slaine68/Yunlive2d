@@ -101,12 +101,19 @@ export default Vue.extend({
         })
       }).then(
         data => {
-          data = JSON.parse(data).result;
-          for (let i = 0; i < this.numPerPage * this.pageSum; i++) {
-            this.saves.push(null);
-          }
-          for (let save of data) {
-            this.saves[save["position"]] = save;
+          try {
+            data = JSON.parse(data).result;
+            for (let i = 0; i < this.numPerPage * this.pageSum; i++) {
+              this.saves.push(null);
+            }
+            for (let save of data) {
+              this.saves[save["position"]] = save;
+            }
+          } catch (error) {
+            console.log(error);
+            for (let i = 0; i < this.numPerPage * this.pageSum; i++) {
+              this.saves.push(null);
+            }
           }
         },
         () => {

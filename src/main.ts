@@ -19,9 +19,9 @@ document.body.onselectstart = function () {
   return false;
 }
 //禁止右键菜单
-document.oncontextmenu = function () {
-  event.returnValue = false;
-}
+// document.oncontextmenu = function () {
+//   event.returnValue = false;
+// }
 
 //Vuex
 Vue.use( Vuex );
@@ -41,12 +41,18 @@ const store = new Vuex.Store({
       isAudioPlay:true,
       audioVolum:0.8,
       isVoicalPlay:false,
-      voicalVolum:1,
+      voicalVolum:0.7,
       isFlower:false,//是否开启花里胡哨特效
       autoReadSpead: 5, //自动速度，0-10
     },
     //用户名称
-    user:''
+    user:'',
+    //游戏界面通用
+    game:{
+      title:'',
+      charTitle:'',
+      autoClick:false,
+    }
   },
   getters:{
     isSettingActive(state){
@@ -84,6 +90,9 @@ const store = new Vuex.Store({
     },
     autoReadSpead(state){
       return state.settingView.autoReadSpead;
+    },
+    charTitle(state){
+      return state.game.charTitle;
     }
   },
   mutations:{
@@ -139,6 +148,9 @@ const store = new Vuex.Store({
     },
     autoReadSpead(state,num:number){
       state.settingView.autoReadSpead = num;
+    },
+    charTitle(state,str:string){
+      state.game.charTitle = str;
     }
   }
 

@@ -94,7 +94,6 @@ export default {
 
 <style scoped lang="less">
 header{
-  padding-top: 1rem;
-  padding-bottom: 0.6rem;
+  padding-top: 0.6rem;
 }
 </style>

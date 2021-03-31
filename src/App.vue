@@ -23,6 +23,13 @@
         ref="settingView"
       ></SettingView>
     </transition>
+    <!-- 组件视图 1 -->
+    <ComponentView
+    ref="compview"
+    :autoClick="autoClick"
+    :autoTimer="autoTimer"
+    @autoClickDo="autoClickDo"
+    />
     <!-- 主视图 0 -->
     <div
       id="viewBlock"
@@ -45,25 +52,6 @@
       <audio id = "voical" ref="speak" :src="'./speak/' + speak + '.wav'" preload="auto">
         语音
       </audio>
-      <!-- 最上方快捷窄条 -->
-      <quick-bar :content = 'quickbarData' :autotimer = 'autoTimer' ref="quickbar"></quick-bar>
-      <!--帮助：ｈ-->
-      <div v-show="isHelpShow" id="helpBlock">
-        <table cellspacing = '10' style = "width:100%">
-          <tr>
-            <td>A</td><td>开始/停止自动翻页</td><td>↑↓</td><td>自动翻页速度</td>
-          </tr>
-          <tr>
-            <td>Q</td><td>快速跳跃至下一处</td><td>P</td><td>跳跃回到上一处</td>
-          </tr>
-          <tr>
-            <td>S</td><td>存档</td><td>L</td><td>读档</td>
-          </tr>
-          <tr>
-            <td>M</td><td>音乐开启关闭</td><td>N</td><td>语音开启关闭</td>
-          </tr>
-        </table>
-      </div>
       <!-- 选择框 1000,一直显示 -->
       <Chooses :orgchoose="choose" @dochoose="dochoose"></Chooses>
       <!-- 控制按钮 101-->
@@ -130,7 +118,7 @@ import DialogTop from "./components/DialogTop.vue";
 import DialogNormal from "./components/DialogNormal.vue";
 import SettingView from "./components/SettingView.vue";
 import TitleScroll from "./components/TitleScroll.vue";
-import QuickBar from "./components/QuickBar.vue";
+import ComponentView from "./components/ComponentView.vue";
 import Bkg from "./components/Bkgs.vue";
 import Chooses from "./components/Chooses.vue";
 import ControlGroup from "./components/ControlGroup.vue";
@@ -287,6 +275,7 @@ export default Vue.extend({
       window.addEventListener("message", this.handleMessage);
     }
     //this.iframeWin = this.$refs.iframe.contentWindow;
+
   },
   //计算组件
   computed: {
@@ -294,13 +283,16 @@ export default Vue.extend({
       let val = `blur(${this.filter.blur}px) sepia(${this.dyn_data.old})`;
       return val;
     },
-    quickbarData(){
-      return [
-        {name:'章节名',type:'text',vars:this.sence.title},
-        {name:'自动阅读',type:'active',vars:this.autoClick},
+    // ComponentViewData(){
+    //   return [
+    //     {name:'章节名',type:'text',vars:this.$store.getters.charTitle},
+    //     {name:'自动阅读',type:'active',vars:this.autoClick},
+    //     {name:'帮助（H）',type:'active',vars:this.isHelpShow,callback:()=>{
+    //       this.isHelpShow = !this.isHelpShow;
+    //     }},
         
-      ]
-    }
+    //   ]
+    // }
   },
   //组件
   components: {
@@ -312,7 +304,7 @@ export default Vue.extend({
     SettingView,
     ControlGroup,
     TitleScroll,
-    QuickBar,
+    ComponentView,
   },
   //方法
   methods: {
@@ -479,7 +471,7 @@ export default Vue.extend({
         let spd = 10 - this.$store.getters.autoReadSpead;
         let time = Math.max(1500 + spd * 300, this.sence.getText().length * (80 + spd *8));
         this.autoTimer = Math.min(time, 4000 + spd * 300);
-        this.$refs.quickbar.activeanime();
+        this.$refs.compview.activeAnime();
         this.autoClkSettimeFuncr = setTimeout(() => {
           this.autoClickDo();
         }, this.autoTimer);
@@ -865,6 +857,8 @@ export default Vue.extend({
           this.sence = new Sence(chapter);
           this.sence.initByAjax().then(() => {
             r();
+            //初始化全局变量
+            this.$store.commit('charTitle',this.sence.title);
           });
         }, 1000);
       });
@@ -1061,7 +1055,12 @@ export default Vue.extend({
       }).then(
         (data) => {
           this.$store.commit("closeSetting");
-          data = JSON.parse(data).result;
+          try {
+            data = JSON.parse(data).result;
+          } catch (error) {
+            this.initGameByFirstCharp();
+            return 0;
+          }
           if (data.length == 0) {
             this.initGameByFirstCharp();
             return 0;
@@ -1220,22 +1219,5 @@ export default Vue.extend({
   animation-direction: reverse;
 }
 
-#helpBlock{
-  position: absolute;
-  top:2rem;
-  width:calc(100% - 4rem);
-  margin: auto;
-  border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.5);
-  color:white;
-  z-index: 1000;
-  padding: 2rem 4rem;
-  box-sizing: border-box;
-  td:nth-child(odd){
-    width: 4rem;
-  }
-  td:nth-child(even){
-    width: calc(50% - 4rem);
-  }
-}
+
 </style>
