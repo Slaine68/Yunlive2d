@@ -118,13 +118,6 @@ export class LAppView {
     const textureManager = LAppDelegate.getInstance().getTextureManager();
     const resourcesPath = LAppDefine.ResourcesPath;
 
-    let imageName = '';
-
-    // 背景画像初期化
-    imageName = LAppDefine.BackImageName;
-
-
-
     // 非同期なのでコールバック関数を作成
     const initBackGroundTexture = (textureInfo: TextureInfo): void => {
       const x: number = width * 0.5;
@@ -134,13 +127,6 @@ export class LAppView {
       const fheight = height * 0.95;
       this._back = new LAppSprite(x, y, fwidth, fheight, textureInfo.id);
     };
-
-    textureManager.createTextureFromPngFile(
-      resourcesPath + imageName,
-      false,
-      initBackGroundTexture
-    );
-
     // シェーダーを作成
     if (this._programId == null) {
       this._programId = LAppDelegate.getInstance().createShader();
@@ -196,14 +182,6 @@ export class LAppView {
         this._touchManager.getY()
       ); // 論理座標変化した座標を取得。
 
-      //触发场景管理的点击事件：
-      //换角色，换表情、场景、音乐
-      //this.senceManager.onTap();
-
-      // 点击齿轮
-      // if (this._gear.isHit(pointX, pointY)) {
-      //   live2DManager.nextScene();
-      // }
     }
   }
 

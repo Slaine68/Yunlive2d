@@ -4,14 +4,15 @@
       <div v-if="cont.type == 'text'" :class="cont.type">{{ cont.vars }}</div>
       <div
         v-else-if="cont.type == 'active'"
-        :class="{ unactive: !cont.vars ,button:true}"
+        :class="{ unactive: !cont.vars, button: true }"
         @click="cont.callback()"
       >
         {{ cont.name }}
         <!-- 自动阅读特殊进度条 -->
-        <span style="font-size: 0" v-if="cont.name == '自动阅读'">
+        <span style="font-size: 0" v-if="cont.name == '自动阅读（A）'">
           <div class="timer-out">
             <div
+             v-show="animeShow"
               :class="{
                 timerinner: true,
                 animefalse: !animechange,
@@ -49,11 +50,16 @@ export default {
   data() {
     return {
       animechange: true,
+      animeShow: true,
     };
   },
   methods: {
     activeanime() {
+      if (!this.animeShow) this.animeShow = true;
       this.animechange = !this.animechange;
+    },
+    stopanime() {
+      this.animeShow = false;
     },
   },
   computed: {

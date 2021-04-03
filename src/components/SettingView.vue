@@ -10,22 +10,22 @@
             <span class="line"></span>
             <span class="small-number-font">2020/05/10 23:00</span>
             <span class="line"></span>
-            <span>{{title}}</span>
+            <span>{{$store.getters.charTitle}}</span>
           </div>
         </div>
         <!-- 组件页 -->
         <div class="middleViews">
           <div class="middleLeftLists mouse-hover">
             <span
-              :class="{'active':$store.getters.getSettingViewFunc=='save'}"
+              :class="{'active':$store.getters.settViewFunc=='save'}"
               @click="$store.commit('setSettingViewFunc','save')"
             >存 档</span>
             <span
-              :class="{'active':$store.getters.getSettingViewFunc=='load'}"
+              :class="{'active':$store.getters.settViewFunc=='load'}"
               @click="$store.commit('setSettingViewFunc','load')"
             >读 档</span>
             <span
-              :class="{'active':$store.getters.getSettingViewFunc=='set'}"
+              :class="{'active':$store.getters.settViewFunc=='set'}"
               @click="$store.commit('setSettingViewFunc','set')"
             >设 置</span>
           </div>
@@ -33,7 +33,6 @@
             <component
               class="middleRightComponent"
               :is="view"
-              @playAudio="playAudio"
               @saveUserData="saveUserData"
               @loadUserData="loadUserData"
               ref="saveblock"
@@ -59,7 +58,7 @@ export default Vue.extend({
   },
   computed:{
     view(){
-      return this.$store.getters.getSettingViewFunc == 'set'? 'SettingSubView':'SaveView';
+      return this.$store.getters.settViewFunc == 'set'? 'SettingSubView':'SaveView';
     }
   },
   mounted() {
@@ -70,10 +69,10 @@ export default Vue.extend({
         for (let index = 0; index < doc[i].childNodes.length; index++) {
           let node = doc[i].childNodes[index] as Element;
           node["onmouseenter"] = () => {
-            this.$emit("playAudio", "yes");
+            this.$store.commit('playAudio',"yes");
           };
           node["onclick"] = () => {
-            this.$emit("playAudio");
+            this.$store.commit('playAudio');
           };
         }
       }
@@ -84,13 +83,10 @@ export default Vue.extend({
     SettingSubView,
     settingButton
   },
-  props: ["title", "round"],
+  props: [ "round"],
   methods: {
     exit() {
-      this.$store.commit("settingViewOpenClose");
-    },
-    playAudio(val) {
-      this.$emit("playAudio", val);
+      this.$store.commit("switchSettView");
     },
     saveUserData(val) {
       this.$emit("saveUserData", val);

@@ -25,20 +25,7 @@ export const ViewLogicalMaxTop = 2.0;
 // 相対パス
 export const ResourcesPath = './Resources/';
 
-// モデルの後ろにある背景の画像ファイル
-export const BackImageName = 'snow_tower.png';
-
-// 歯車
-export const GearImageName = 'icon_gear.png';
-
-// 終了ボタン
-export const PowerImageName = 'CloseNormal.png';
-
 // モデル定義---------------------------------------------
-// モデルを配置したディレクトリ名の配列
-// ディレクトリ名とmodel3.jsonの名前を一致させておくこと
-export const ModelDir: string[] = ['aoi','yoru', 'Hiyori'];
-export const ModelDirSize: number = ModelDir.length;
 
 // 外部定義ファイル（json）と合わせる
 export const MotionGroupIdle = 'Idle'; // アイドリング
@@ -161,6 +148,17 @@ export enum States{
     CHOOSE,
     LOADING,
     BATTLE
+}
+
+//组件枚举
+export enum Comps{
+    LOAD,
+    SAVE,
+    SETTING,
+    HELPER, //帮助
+    DRAWER, //画廊
+    MUSICER, //音乐
+    LITTER, //信件
 }
 
 export const DELAY_TIME=800;

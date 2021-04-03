@@ -13,7 +13,7 @@
     <div id="saveBodyMask">
       <div
         id="saveBody"
-        :class="['flex-row-center','flex-father-full',$store.getters.getSettingViewFunc]"
+        :class="['flex-row-center','flex-father-full',$store.getters.settViewFunc]"
         @mouseover="mouseOver"
         @click="mouseClick"
         :style="{'transform':'translateX(-'+(curpage-1)*(100/pageSum)+'%)','width':(100*pageSum)+'%'}"
@@ -72,16 +72,16 @@ export default Vue.extend({
   methods: {
     mouseOver(event) {
       if (event.target.className.indexOf("mousehover") > -1) {
-        this.$emit("playAudio", "yes");
+        this.$store.commit('playAudio',"yes");
       }
     },
     mouseClick(event) {
       if (event.target.className.indexOf("mousehover") > -1) {
-        this.$emit("playAudio");
+        this.$store.commit('playAudio');
       }
     },
     clickSmallBlock(num:number){
-      if(this.$store.getters.getSettingViewFunc=="save"){
+      if(this.$store.getters.settViewFunc=="save"){
         this.$emit('saveUserData',num);
       }
       else{

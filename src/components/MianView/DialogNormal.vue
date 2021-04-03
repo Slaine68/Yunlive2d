@@ -12,7 +12,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { charactorColor } from "../lappdefine";
+import { charactorColor } from "../../lappdefine";
 export default Vue.extend({
   props: ["text", "name", "opa", "font", "fontfamily", "anime"],
   computed: {

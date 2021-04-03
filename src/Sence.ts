@@ -195,7 +195,6 @@ export class Sence {
         }
         else return null;
     }
-
     public getCharRealWithCh(name?: string): string {
         let txt = name ? name : this.nowChar;
         if (txt) {

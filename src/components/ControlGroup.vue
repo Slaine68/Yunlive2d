@@ -6,7 +6,7 @@
       class="save"
     ></span>
     <span
-      @click="$store.commit('settingViewOpenClose','load')"
+      @click="$store.commit('switchSettView','load')"
       v-show="func.indexOf('load')>-1"
       class="load"
     ></span>
@@ -27,7 +27,7 @@ export default Vue.extend({
   },
   methods: {
     saveModel() {
-      this.$store.commit('settingViewOpenClose','save');
+      this.$store.commit('switchSettView','save');
 
     }
   }

@@ -52,13 +52,14 @@ const store = new Vuex.Store({
       title:'',
       charTitle:'',
       autoClick:false,
-    }
+    },
+    audio:'yes'
   },
   getters:{
     isSettingActive(state){
       return state.settingView.active;
     },
-    getSettingViewFunc(state){
+    settViewFunc(state){
       return state.settingView.func;
     },
     isMusicPlay(state){
@@ -88,6 +89,9 @@ const store = new Vuex.Store({
     getUser(state){
       return state.user;
     },
+    audio(state){
+      return state.audio;
+    },
     autoReadSpead(state){
       return state.settingView.autoReadSpead;
     },
@@ -96,7 +100,7 @@ const store = new Vuex.Store({
     }
   },
   mutations:{
-    settingViewOpenClose(state,func?){
+    switchSettView(state,func?){
       state.settingView.active=!state.settingView.active;
       if(func){
         state.settingView.func=func;
@@ -133,6 +137,15 @@ const store = new Vuex.Store({
     },
     audioPlay(state,play:boolean){
       state.settingView.isAudioPlay=play;
+    },
+    playAudio(state, audio:string = 'hover'){
+      if(!state.settingView.isAudioPlay)return;
+      state.audio = audio;
+      let au = document.getElementById('audio') as HTMLAudioElement;
+      au.load();
+      setTimeout(() => {
+        au.play();
+      }, 20);
     },
     voicalPlay(state,play:boolean){
       state.settingView.isVoicalPlay=play;

@@ -9,36 +9,35 @@
     }"
   >
     <!-- 存档视图 1001 -->
-    <transition :name="$store.getters.isFlower?'slide-fade':''">
+    <transition :name="$store.getters.isFlower ? 'slide-fade' : ''">
       <SettingView
         v-show="$store.getters.isSettingActive"
-        @setStatus="setStatus"
-        @playAudio="playAudio"
         @saveUserData="saveUserData"
         @loadUserData="loadUserData"
         class="full-screen flex-col-center"
         style="z-index: 9"
-        :title="sence.title"
         :round="dyn_data.emotions['周目']"
         ref="settingView"
       ></SettingView>
     </transition>
     <!-- 组件视图 1 -->
     <ComponentView
-    ref="compview"
-    :autoClick="autoClick"
-    :autoTimer="autoTimer"
-    @autoClickDo="autoClickDo"
+      ref="compview"
+      :autoClick="autoClick"
+      :autoTimer="autoTimer"
+      @autoClickDo="autoClickDo"
     />
     <!-- 主视图 0 -->
     <div
       id="viewBlock"
       class="full-screen flex-col-center"
       @click="onTap"
-      :class="{ blur: $store.getters.isSettingActive && $store.getters.isFlower}"
+      :class="{
+        blur: $store.getters.isSettingActive && $store.getters.isFlower,
+      }"
     >
       <audio
-        id = 'music'
+        id="music"
         ref="music"
         loop
         :src="'./music/' + dyn_data.music + '.mp3'"
@@ -46,10 +45,20 @@
       >
         主音乐
       </audio>
-      <audio id = 'audio' ref="audio" :src="'./audio/' + audio + '.wav'" preload="auto">
+      <audio
+        id="audio"
+        ref="audio"
+        :src="'./audio/' + $store.getters.audio + '.wav'"
+        preload="auto"
+      >
         音效
       </audio>
-      <audio id = "voical" ref="speak" :src="'./speak/' + speak + '.wav'" preload="auto">
+      <audio
+        id="voical"
+        ref="speak"
+        :src="'./speak/' + speak + '.wav'"
+        preload="auto"
+      >
         语音
       </audio>
       <!-- 选择框 1000,一直显示 -->
@@ -81,15 +90,12 @@
         </transition>
       </div>
       <!-- 对话框 99 -->
-      <component
-        :is="dialog.type"
-        :text="dialog.text"
-        :name="dialog.name"
-        :opa="dialog.opacity"
-        :font="dialog.font"
-        :fontfamily="dialog.fontfamily"
-        :anime="dialog.anime"
-      ></component>
+      <Dialog
+        :statu="statu"
+        :sence="sence"
+        :live2DManager="live2DManager"
+        ref="dialog"
+      />
       <!-- 角色图像 1 -->
       <canvas
         id="maincanvas"
@@ -101,31 +107,25 @@
       ></canvas>
       <!-- 背景 0 -->
       <Bkg
-        id="bkg"
         :class="['bechanges', filter.animation]"
         :style="{ filter: getFilterValue }"
         :bkg="dyn_data.bkg"
-        :perbkg="dyn_data.bkg"
       ></Bkg>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import DialogMovie from "./components/DialogMovie.vue";
-import DialogTop from "./components/DialogTop.vue";
-import DialogNormal from "./components/DialogNormal.vue";
+import Dialog from "./components/MianView/Dialog.vue";
 import SettingView from "./components/SettingView.vue";
 import TitleScroll from "./components/TitleScroll.vue";
-import ComponentView from "./components/ComponentView.vue";
+import ComponentView from "./components/ComponentView/ComponentView.vue";
 import Bkg from "./components/Bkgs.vue";
 import Chooses from "./components/Chooses.vue";
 import ControlGroup from "./components/ControlGroup.vue";
 import { LAppDelegate } from "./lappdelegate";
 import { LAppLive2DManager } from "./lapplive2dmanager";
 import { ajax } from "./ajax";
-import html2canvas from "html2canvas";
 import {
   gameSetting,
   charaDefaultPosition,
@@ -137,7 +137,8 @@ import {
   DebugLogEnable,
 } from "./lappdefine";
 import { Sence } from "./Sence";
-
+import Vue from "vue";
+import html2canvas from "html2canvas";
 //存档数据结构
 interface SaveData {
   chapterName: string;
@@ -149,18 +150,19 @@ interface SaveData {
 }
 
 export default Vue.extend({
+  //组件
+  components: {
+    Dialog,
+    Bkg,
+    Chooses,
+    SettingView,
+    ControlGroup,
+    TitleScroll,
+    ComponentView,
+  },
   data() {
     return {
       // 对话
-      dialog: {
-        type: "",
-        name: "",
-        text: "",
-        opacity: 1,
-        font: 0,
-        fontfamily: 0,
-        anime: false,
-      },
       canvas: {
         opacity: 1,
       },
@@ -190,21 +192,43 @@ export default Vue.extend({
       click: true,
       autoClick: false,
       autoClkSettimeFuncr: null,
-      autoTimer:0,
+      autoTimer: 0,
       //
       statu: States.NORMAL,
-      isHelpShow: false,
       showSaveView: "",
-      audio: "",
       speak: "",
       choose: [],
       //章节场景实例
       sence: new Sence(gameSetting.startChap),
+      live2DManager: null,
       //高和宽
       width: 1920,
       height: 1080,
       States: States,
     };
+  },
+  //计算组件
+  computed: {
+    getFilterValue: function () {
+      let val = `blur(${this.filter.blur}px) sepia(${this.dyn_data.old})`;
+      return val;
+    },
+  },
+  watch: {
+    "dyn_data.music"(n, o) {
+      //为啥必须有个延迟才能播放？？？？
+      if (this.$store.getters.isMusicPlay) {
+        setTimeout(() => {
+          this.$refs.music.play();
+        }, 100);
+      }
+    },
+    speak() {
+      this.$refs.speak.load();
+      setTimeout(() => {
+        this.$refs.speak.play();
+      }, 100);
+    },
   },
   //   初始化
   mounted() {
@@ -212,6 +236,7 @@ export default Vue.extend({
       return;
     }
     LAppDelegate.getInstance().run();
+    this.live2DManager = LAppLive2DManager.getInstance();
 
     //绑定resize重绘
     this.changeWH(
@@ -233,33 +258,35 @@ export default Vue.extend({
         this.onTap();
       } else if (e.keyCode == 38) {
         //↑字体放大
-        this.dialog.font += 0.1;
+        //this.dialog.font += 0.1;
       } else if (e.keyCode == 39) {
         //→字体family
-        if (this.dialog.fontfamily++ > 6) {
-          this.dialog.fontfamily = 0;
-        }
+        // if (this.dialog.fontfamily++ > 6) {
+        //   this.dialog.fontfamily = 0;
+        // }
       } else if (e.keyCode == 40) {
         //↓字体缩小
-        this.dialog.font -= 0.1;
+        //this.dialog.font -= 0.1;
       } else if (e.keyCode == 65) {
         //a，auto自动
         this.autoClickDo(!this.autoClick);
       } else if (e.keyCode == 72) {
         //h，帮助
-        if(this.statu == States.NORMAL && this.$store.getters.isSettingActive){
+        if (
+          this.statu == States.NORMAL &&
+          this.$store.getters.isSettingActive
+        ) {
           this.isHelpShow = !this.isHelpShow;
-        }
-        else this.isHelpShow = false;
+        } else this.isHelpShow = false;
       } else if (e.keyCode == 77) {
         //m，音乐
         this.$store.commit("musicPlay", !this.$store.getters.isMusicPlay);
       } else if (e.keyCode == 83) {
         //s，save
-        this.$store.commit("settingViewOpenClose", "save");
+        this.$store.commit("switchSettView", "save");
       } else if (e.keyCode == 76) {
         //l，load
-        this.$store.commit("settingViewOpenClose", "load");
+        this.$store.commit("switchSettView", "load");
       } else if (e.keyCode == 81) {
         //q，快速跳过
         this.quickTap();
@@ -275,142 +302,54 @@ export default Vue.extend({
       window.addEventListener("message", this.handleMessage);
     }
     //this.iframeWin = this.$refs.iframe.contentWindow;
-
-  },
-  //计算组件
-  computed: {
-    getFilterValue: function () {
-      let val = `blur(${this.filter.blur}px) sepia(${this.dyn_data.old})`;
-      return val;
-    },
-    // ComponentViewData(){
-    //   return [
-    //     {name:'章节名',type:'text',vars:this.$store.getters.charTitle},
-    //     {name:'自动阅读',type:'active',vars:this.autoClick},
-    //     {name:'帮助（H）',type:'active',vars:this.isHelpShow,callback:()=>{
-    //       this.isHelpShow = !this.isHelpShow;
-    //     }},
-        
-    //   ]
-    // }
-  },
-  //组件
-  components: {
-    DialogMovie,
-    DialogTop,
-    DialogNormal,
-    Bkg,
-    Chooses,
-    SettingView,
-    ControlGroup,
-    TitleScroll,
-    ComponentView,
   },
   //方法
   methods: {
     //点击处理逻辑
     onTap() {
-      if (this.$store.getters.isSettingActive) {
+      if (
+        !StatesDeal.clickable.includes(this.statu) ||
+        this.$store.getters.isSettingActive ||
+        !this.click
+      ) {
         return false;
       }
-      const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
-      //当前状态是否被允许点击
-      if (!StatesDeal.clickable.includes(this.statu)) {
-        return false;
-      }
-      //互斥量存在
-      if (this.click) {
-        this.click = false;
-        //执行code，再切换立绘等
-        this.dealAllCode(this.sence.getCode())
-          .then((delay: number) => {
-            //更换模型
-
-            this.changeModel(this.sence.getCharOrigin(), this.sence.getFace());
-            //更换音乐
-            if (this.sence.getMus()) {
-              this.dyn_data.music = this.sence.getMus();
-              //为啥必须有个延迟才能播放？？？？
-              if (this.$store.getters.isMusicPlay) {
-                setTimeout(() => {
-                  this.$refs.music.play();
-                }, 100);
-              } else {
-                this.$refs.music.pause();
-              }
+      this.click = false;
+      //执行code
+      this._dealAllCode(this.sence.getCode())
+        .then((delay: number) => {
+          //更换模型
+          this._changeModel(this.sence.getCharOrigin(), this.sence.getFace());
+          //更换音乐
+          if (this.sence.getMus()) {
+            this.dyn_data.music = this.sence.getMus();
+          }
+          //更换背景
+          if (this.sence.getBkg()) {
+            this.dyn_data.bkg = this.sence.getBkg();
+          }
+          //有语音播放语音
+          if (this.$store.getters.isVoicalPlay) {
+            this.speak = this.sence.getCharSpeaks();
+          }
+          //更换dialog及文字
+          this.$refs.dialog.changeDialog().then(() => {
+            this.sence.setNowiAdd();
+            //约定下次自动点击
+            if (this.autoClick) {
+              this.autoClickDo();
             }
-            //更换背景
-            if (this.sence.getBkg()) {
-              this.dyn_data.bkg = this.sence.getBkg();
-            }
-            //更换dialog
-            if (this.statu == States.MOVIE || this.statu == States.MOVIEPRO) {
-              this.dialog.type = "DialogMovie";
-            } else if (this.sence.getCharOrigin() == "") {
-              this.dialog.type = "DialogTop";
-            } else if (this.sence.getCharOrigin()) {
-              this.dialog.type = "DialogNormal";
-            }
-
-            //更换文字
-            new Promise((resolve) => {
-              //有语音播放语音
-              if(this.$store.getters.isVoicalPlay){
-                this.speak = this.sence.getCharSpeaks();
-                this.$refs.speak.load();
-                setTimeout(() => {
-                  this.$refs.speak.play();
-                }, 100);
-              }
-              //电影、旁白模式
-              if (this.dialog.type != "DialogNormal") {
-                this.dialog.opacity = 0;
-                setTimeout(() => {
-                  this.dialog.text = this.sence.getText();
-                  this.dialog.name = this.sence.getCharShow();
-                  this.dialog.opacity = 1;
-                  resolve();
-                }, 500);
-                //正常对话模式
-              } else {
-                if (
-                  this.sence.getCharShow() == "" ||
-                  typeof this.sence.getCharReal() == "undefined"
-                ) {
-                  live2DManager.clearActiveModel();
-                }
-                if (this.dialog.name != this.sence.getCharShow()) {
-                  //如果换人了，给个动画
-                  this.dialog.text = this.sence.getText();
-                  this.dialog.name = this.sence.getCharShow();
-                  this.dialog.anime = live2DManager.getActiveModelPosition();
-                  setTimeout(() => {
-                    this.dialog.anime = "none";
-                  }, 500);
-                } else {
-                  this.dialog.text = this.sence.getText();
-                  this.dialog.name = this.sence.getCharShow();
-                }
-                setTimeout(() => {
-                  resolve();
-                }, 200);
-              }
-            })
-              //nowi++
-              .then(() => {
-                this.sence.setNowiAdd();
-                setTimeout(() => {
-                  this.click = true;
-                }, delay);
-              });
-          })
-          .catch((param?: string) => {
-            this.click = true;
-            if (param == "tap") {
-              this.onTap();
-            } else console.log("错误：" + param);
+            setTimeout(() => {
+              this.click = true;
+            }, delay);
           });
-      }
+        })
+        .catch((param?: string) => {
+          this.click = true;
+          if (param == "tap") {
+            this.onTap();
+          } else console.log("错误：" + param);
+        });
     },
     quickTap() {
       //只执行位置控制、reset、change old、movie，到choose停下
@@ -433,11 +372,11 @@ export default Vue.extend({
           let codes = this.sence.getCode();
           if (codes) {
             if (codes.some((code) => code.includes(breakArr))) break;
-            let dealCode = codes.filter((code) =>
+            let _dealCode = codes.filter((code) =>
               waitArr.some((word) => code.includes(word))
             );
-            if (dealCode.length) {
-              this.dealAllCode(dealCode);
+            if (_dealCode.length) {
+              this._dealAllCode(_dealCode);
             }
           }
         }
@@ -445,10 +384,11 @@ export default Vue.extend({
         this.onTap();
       }
     },
-    quickReTap(){
-      let num = this.sence
-        .getAutoFlagReserve()
-        .find((number) => number + 1 < this.sence.nowi) || 0;
+    quickReTap() {
+      let num =
+        this.sence
+          .getAutoFlagReserve()
+          .find((number) => number + 1 < this.sence.nowi) || 0;
       this.sence.setNowi(num);
       this.sence.findPreBkg();
       this.onTap();
@@ -456,50 +396,59 @@ export default Vue.extend({
     autoClickDo(state) {
       //如果点击自动
       if (typeof state === "boolean") this.autoClick = state;
-      //此时不适合自动，或者停止自动，停下清句柄
-      if(!StatesDeal.clickable.includes(this.statu) || this.$store.getters.isSettingActive || !this.autoClick){
+      //清句柄和动画
+      clearTimeout(this.autoClkSettimeFuncr);
+      this.$refs.compview.stopAnime();
+      //此时不适合自动，或者停止自动，停下
+      if (
+        !StatesDeal.clickable.includes(this.statu) ||
+        this.$store.getters.isSettingActive ||
+        !this.autoClick
+      ) {
         this.autoClick = false;
-        if(this.autoClkSettimeFuncr){
-          clearTimeout(this.autoClkSettimeFuncr);
-          this.autoClkSettimeFuncr = null;
-          return;
-        }
+        return;
       }
       if (this.autoClick) {
-        this.onTap();
         //快速：1-4s,慢速: 3-6s
-        let spd = 10 - this.$store.getters.autoReadSpead;
-        let time = Math.max(1500 + spd * 300, this.sence.getText().length * (80 + spd *8));
+        const spd = 10 - this.$store.getters.autoReadSpead;
+        const time = Math.max(
+          1500 + spd * 300,
+          this.sence.getText().length * (80 + spd * 8)
+        );
         this.autoTimer = Math.min(time, 4000 + spd * 300);
         this.$refs.compview.activeAnime();
         this.autoClkSettimeFuncr = setTimeout(() => {
-          this.autoClickDo();
+          this.onTap();
         }, this.autoTimer);
       }
     },
     //触发立绘改变
-    changeModel(origiChars?: string, emo?: string): void {
-      const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
+    _changeModel(origiChars?: string, emo?: string): void {
       if (origiChars) {
+        //如果以-结尾，无active者
+        if (origiChars.match(/\-$/g)) {
+          this.live2DManager.clearActiveModel();
+          return;
+        }
         let getRealName = this.sence.getCharReal(origiChars);
         if (!getRealName || !this.dyn_data.charStatus[getRealName]) return;
         switch (this.dyn_data.charStatus[getRealName].position) {
           case "left":
-            live2DManager.changeLeftModel(getRealName);
+            this.live2DManager.changeLeftModel(getRealName);
             break;
           case "right":
-            live2DManager.changeRightModel(getRealName);
+            this.live2DManager.changeRightModel(getRealName);
             break;
           case "middle":
           default:
-            live2DManager.changeMiddleModel(getRealName);
+            this.live2DManager.changeMiddleModel(getRealName);
         }
-        if (live2DManager._active_model != null) {
-          live2DManager.resetActiveOpacity();
+        if (this.live2DManager._active_model != null) {
+          this.live2DManager.resetActiveOpacity();
         }
       }
       if (emo) {
-        live2DManager.changeEmotion(emo);
+        this.live2DManager.changeEmotion(emo);
       } else {
         if (
           this.sence
@@ -507,15 +456,15 @@ export default Vue.extend({
             .split("")
             .some((i) => i != "…" && i != "。" && i != "！" && i != "？")
         ) {
-          live2DManager.changeEmotion("sp");
+          this.live2DManager.changeEmotion("sp");
         }
       }
     },
 
-    dealAllCode(codeArr) {
+    _dealAllCode(codeArr) {
       return new Promise((resolve, reject) => {
         if (codeArr) {
-          let { arr, params } = this.dealCode(codeArr);
+          let { arr, params } = this._dealCode(codeArr);
           let codePromise: Promise<number> = arr.shift()(params.shift());
           while (arr.length) {
             let func = arr.shift();
@@ -532,89 +481,89 @@ export default Vue.extend({
               reject(param);
             });
         } else {
-          resolve();
+          resolve(0);
         }
       });
     },
     //处理代码
-    dealCode(codes: string[]) {
+    _dealCode(codes: string[]) {
       let arr: Function[] = [];
       let params: string[][] = [];
       for (let item of codes) {
         let paras = item.split(" ");
         switch (paras.shift()) {
           case "delay":
-            arr.push(this.dealCodeDelay);
+            arr.push(this._dealCodeDelay);
             break;
           case "fadeout":
-            arr.push(this.dealCodeFadeOut);
+            arr.push(this._dealCodeFadeOut);
             break;
           case "fadein":
-            arr.push(this.dealCodeFadeIn);
+            arr.push(this._dealCodeFadeIn);
             break;
           case "fadeout_in":
-            arr.push(this.dealCodeFadeOutIn);
+            arr.push(this._dealCodeFadeOutIn);
             break;
           case "clear":
-            arr.push(this.dealCodeClear);
+            arr.push(this._dealCodeClear);
             break;
           case "leave":
-            arr.push(this.dealCodeAudio);
-            arr.push(this.dealCodeFadeOut);
-            arr.push(this.dealCodeClear);
+            arr.push(this._dealCodeAudio);
+            arr.push(this._dealCodeFadeOut);
+            arr.push(this._dealCodeClear);
             params.push(["step"]);
             params.push(paras);
             break;
           case "show":
-            arr.push(this.dealCodeShow);
+            arr.push(this._dealCodeShow);
             break;
           case "left":
-            arr.push(this.dealCodeLeft);
+            arr.push(this._dealCodeLeft);
             break;
           case "right":
-            arr.push(this.dealCodeRight);
+            arr.push(this._dealCodeRight);
             break;
           case "middle":
-            arr.push(this.dealCodeMiddle);
+            arr.push(this._dealCodeMiddle);
             break;
           case "db":
             this.sence.bkgs[this.sence.nowi] = "black";
-            arr.push(this.dealCodeDelay);
+            arr.push(this._dealCodeDelay);
             break;
           case "audio":
-            arr.push(this.dealCodeAudio);
+            arr.push(this._dealCodeAudio);
             break;
           case "emotion":
-            arr.push(this.dealCodeEmotion);
+            arr.push(this._dealCodeEmotion);
             break;
           case "judgement":
-            arr.push(this.dealCodeJudg);
+            arr.push(this._dealCodeJudg);
             break;
           case "choose":
-            arr.push(this.dealCodeChoose);
+            arr.push(this._dealCodeChoose);
             break;
           case "movie":
-            arr.push(this.dealCodeMovie);
+            arr.push(this._dealCodeMovie);
             break;
           case "moviepro":
-            arr.push(this.dealCodeMoviePro);
+            arr.push(this._dealCodeMoviePro);
             break;
           case "turnto":
-            arr.push(this.dealCodeTurnto);
+            arr.push(this._dealCodeTurnto);
             break;
           case "change":
-            arr.push(this.dealCodeChange);
+            arr.push(this._dealCodeChange);
             break;
           case "sleepy":
-            arr.push(this.dealCodeChange);
+            arr.push(this._dealCodeChange);
             params.push(["blur"]);
-            arr.push(this.dealCodeDelay);
+            arr.push(this._dealCodeDelay);
             params.push(["4"]);
-            arr.push(this.dealCodeChange);
+            arr.push(this._dealCodeChange);
             paras = ["!blur"];
             break;
           case "reset":
-            arr.push(this.dealCodeReset);
+            arr.push(this._dealCodeReset);
             break;
           default:
             arr.push(this.dealDefalt);
@@ -625,7 +574,7 @@ export default Vue.extend({
     },
 
     //delay代码:遮罩显示，param s后去掉遮罩且清空屏幕。
-    dealCodeDelay(params: string[]): Promise<number> {
+    _dealCodeDelay(params: string[]): Promise<number> {
       let second = params.length > 0 ? parseInt(params[0]) : 2;
       return new Promise((resolve) => {
         this.showMask(second, params[1] ? params[1] : "black");
@@ -637,22 +586,22 @@ export default Vue.extend({
     },
 
     //fadeout代码:设置fadeout，n秒后放行
-    dealCodeFadeOut(params: string[]): Promise<number> {
+    _dealCodeFadeOut(params: string[]): Promise<number> {
       let second = params.length > 0 ? parseInt(params[0]) : 2;
       return new Promise((resolve) => {
         LAppLive2DManager.getInstance().fadeout();
         setTimeout(() => {
-          this.dialog.opacity = "0";
+          this.$refs.dialog.opacity = "0";
         }, (second * 1000) / 2);
         setTimeout(() => {
-          this.dialog.opacity = "1";
+          this.$refs.dialog.opacity = "1";
           resolve(0);
         }, second * 1000);
       });
     },
 
     //fadein代码:设置fadein，n秒后放行
-    dealCodeFadeIn(params: string[]): Promise<number> {
+    _dealCodeFadeIn(params: string[]): Promise<number> {
       let second = params.length > 0 ? parseInt(params[0]) : 2;
       return new Promise((resolve) => {
         LAppLive2DManager.getInstance().fadein();
@@ -661,42 +610,42 @@ export default Vue.extend({
     },
 
     //fadeoutin代码:设置fadein，n秒后放行
-    dealCodeFadeOutIn(params: string[], delay: number): Promise<number> {
+    _dealCodeFadeOutIn(params: string[], delay: number): Promise<number> {
       let second = params.length > 0 ? parseInt(params[0]) : 2;
       return new Promise((resolve) => {
-        this.dialog.opacity = 0;
+        this.$refs.dialog.opacity = 0;
         setTimeout(() => {
           this.canvas.opacity = 0;
         }, 300);
         setTimeout(() => {
           LAppLive2DManager.getInstance().clearAll();
-          this.dialog.opacity = 1;
+          this.$refs.dialog.opacity = 1;
           this.canvas.opacity = 1;
           resolve(DELAY_TIME);
         }, 2000);
       });
     },
     //clear:设置clear,放空当前活跃
-    dealCodeClear(params: string[], delay: number): Promise<number> {
+    _dealCodeClear(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         LAppLive2DManager.getInstance().clear();
         resolve(delay);
       });
     },
     //show代码：提前在界面上展示角色
-    dealCodeShow(chars: string[], delay: number): Promise<number> {
+    _dealCodeShow(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let name of chars) {
           LAppLive2DManager.getInstance().changeSliper(
             this.sence.getCharReal(name)
           );
-          this.changeModel(name);
+          this._changeModel(name);
         }
         resolve(delay);
       });
     },
     //right代码：将角色置右
-    dealCodeRight(chars: string[], delay: number): Promise<number> {
+    _dealCodeRight(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
           let realName = this.sence.getCharReal(c);
@@ -709,7 +658,7 @@ export default Vue.extend({
       });
     },
     //left代码：将角色置右
-    dealCodeLeft(chars: string[], delay: number): Promise<number> {
+    _dealCodeLeft(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
           let realName = this.sence.getCharReal(c);
@@ -722,7 +671,7 @@ export default Vue.extend({
       });
     },
     //middle代码：将角色置右
-    dealCodeMiddle(chars: string[], delay: number): Promise<number> {
+    _dealCodeMiddle(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
           let realName = this.sence.getCharReal(c);
@@ -735,22 +684,18 @@ export default Vue.extend({
       });
     },
     //audio 代码
-    dealCodeAudio(audios: string[], delay: number): Promise<number> {
+    _dealCodeAudio(audios: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
-        if(this.$store.getters.isAudioPlay){
+        if (this.$store.getters.isAudioPlay) {
           for (let audio of audios) {
-            this.audio = audio;
-            this.$refs.audio.load();
-            setTimeout(() => {
-              this.$refs.audio.play();
-            }, 100);
+            this.$store.commit('playAudio',audio);
           }
         }
         resolve(delay);
       });
     },
     //emotion 代码
-    dealCodeEmotion(params: string[], delay: number): Promise<number> {
+    _dealCodeEmotion(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         if (
           params.length > 1 &&
@@ -765,7 +710,7 @@ export default Vue.extend({
       });
     },
     //judgement 代码
-    dealCodeJudg(params: string[], delay: number): Promise<number> {
+    _dealCodeJudg(params: string[], delay: number): Promise<number> {
       return new Promise((resolve, reject) => {
         if (params.length == 1) {
           if (this.dyn_data.tmpChoose == parseInt(params[0])) {
@@ -794,7 +739,7 @@ export default Vue.extend({
       });
     },
     //choose 代码
-    dealCodeChoose(params: string[], delay: number): Promise<number> {
+    _dealCodeChoose(params: string[], delay: number): Promise<number> {
       //judgement 青寒 > 金寒 && 黑暗度 <= 1
       return new Promise((resolve) => {
         this.choose = params;
@@ -803,14 +748,14 @@ export default Vue.extend({
       });
     },
     //movie 代码
-    dealCodeMovie(params: string[], delay: number): Promise<number> {
+    _dealCodeMovie(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         if (params[0] == "start") this.setStatus(States.MOVIE);
         else this.setStatus(States.NORMAL);
         resolve(DELAY_TIME);
       });
     }, //moviepro 代码
-    dealCodeMoviePro(params: string[], delay: number): Promise<number> {
+    _dealCodeMoviePro(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         if (params[0] == "start") this.setStatus(States.MOVIEPRO);
         else this.setStatus(States.NORMAL);
@@ -820,13 +765,13 @@ export default Vue.extend({
     },
     //turnto代码:执行转场后终止
     //eg:turnto char3 name 6second/
-    dealCodeTurnto(params: string[], delay: number): Promise<number> {
+    _dealCodeTurnto(params: string[], delay: number): Promise<number> {
       return new Promise((resolve, reject) => {
         let second = params.length > 0 ? parseInt(params[2]) : 5;
         //显示遮罩
         let pro1 = this.showMaskWithTitle("w" + params[0], params[1]);
         //2.n秒过后
-        let pro2 = new Promise((r2) => {
+        let pro2 = new Promise<void>((r2) => {
           setTimeout(() => {
             this.mask.showtitle = false;
             r2();
@@ -858,17 +803,17 @@ export default Vue.extend({
           this.sence.initByAjax().then(() => {
             r();
             //初始化全局变量
-            this.$store.commit('charTitle',this.sence.title);
+            this.$store.commit("charTitle", this.sence.title);
           });
         }, 1000);
       });
     },
     //change blind shake blur old
     //change 代码
-    dealCodeChange(param: string[], delay: number): Promise<number> {
+    _dealCodeChange(param: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         let delaytme = 500;
-        this.dialog.opacity = 0;
+        this.$refs.dialog.opacity = 0;
         //change blur
         if (param[0] == "blur") {
           this.filter.blur = 20;
@@ -914,13 +859,13 @@ export default Vue.extend({
           }, 2000);
         }
         setTimeout(() => {
-          this.dialog.opacity = 1;
+          this.$refs.dialog.opacity = 1;
           resolve(DELAY_TIME);
         }, delaytme);
       });
     },
     //reset代码
-    dealCodeReset(params: string[], delay: number): Promise<number> {
+    _dealCodeReset(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let item in charaDefaultPosition) {
           for (let char of charaDefaultPosition[item]) {
@@ -938,7 +883,7 @@ export default Vue.extend({
     //anime
     dealDefalt(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
-        resolve();
+        resolve(0);
       });
     },
     //存档
@@ -1067,7 +1012,7 @@ export default Vue.extend({
           }
           data = data[0];
           let pro1 = this.showMaskWithTitle(data["chapter_id"]);
-          let pro2 = new Promise((r2) => {
+          let pro2 = new Promise<void>((r2) => {
             setTimeout(() => {
               r2();
             }, 3000);
@@ -1099,7 +1044,7 @@ export default Vue.extend({
     //从第一章初始化游戏
     initGameByFirstCharp() {
       let pro1 = this.showMaskWithTitle(gameSetting.startChap);
-      let pro2 = new Promise((r2) => {
+      let pro2 = new Promise<void>((r2) => {
         setTimeout(() => {
           r2();
         }, 4000);
@@ -1143,15 +1088,6 @@ export default Vue.extend({
       console.log("状态改变：" + this.statu + "->" + n);
       this.statu = n;
       LAppLive2DManager.getInstance().clearAll();
-    },
-    //播放音效
-    playAudio(music?: string) {
-      if(!this.$store.getters.isAudioPlay) return;
-      this.audio = music ? music : "hover";
-      this.$refs.audio.load();
-      setTimeout(() => {
-        this.$refs.audio.play();
-      }, 20);
     },
     //重新计算大小
     changeWH(w, h, b) {
@@ -1218,6 +1154,4 @@ export default Vue.extend({
   animation: slidex30 1s cubic-bezier(0.42, 0, 1, 0.63) 0.5s;
   animation-direction: reverse;
 }
-
-
 </style>
