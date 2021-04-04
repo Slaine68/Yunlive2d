@@ -7,7 +7,6 @@
 
 import { Live2DCubismFramework as cubismmatrix44 } from '@framework/math/cubismmatrix44';
 import { Live2DCubismFramework as acubismmotion } from '@framework/motion/acubismmotion';
-import {LAppCommonModel} from './lappcommonmodel';
 import Csm_CubismMatrix44 = cubismmatrix44.CubismMatrix44;
 import ACubismMotion = acubismmotion.ACubismMotion;
 import vue from './main';
@@ -332,7 +331,7 @@ export class LAppLive2DManager {
   public changeScene(name: string, model: string): Promise<void> {
     if (model && !this._models[model]) {
       return new Promise(resolve => {
-        const modelPath: string = LAppDefine.ResourcesPath + model + '/';
+        const modelPath: string = `./Resources/${vue.$store.getters.gameName}/live2d/${model}/`;
         this._models[model] = new LAppModel();
         this._models[model].loadAssets(modelPath, model, name).then(() => {
           resolve();
@@ -364,7 +363,6 @@ export class LAppLive2DManager {
     this._sceneIndex = 0;
     this._fading_out_charactor = null;
     this._fading_in_charactor = null;
-    LAppCommonModel.getInstance();
   }
 
 
@@ -378,7 +376,7 @@ export class LAppLive2DManager {
 
       for (let item of chars) {
         
-        this.changeScene(item, LAppDefine.charactorMap[item]).then(() => {
+        this.changeScene(item, vue.$store.getters.charactorMap[item]).then(() => {
           count++;
           vue.$store.commit("setPresent", Math.round(count / chars.length * 100));
           if (count == chars.length) {

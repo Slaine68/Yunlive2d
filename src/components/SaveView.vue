@@ -41,7 +41,7 @@
             <span
               v-else
               class="block-img"
-              :style="{backgroundImage: 'url('+phpPath+'save/'+gameName+'/'+$store.getters.getUser+'/'+(index+numPerPage*(pg-1))+item.id+'.jpg)'}"
+              :style="{backgroundImage: 'url('+phpPath+'save/'+$store.getters.gameName+'/'+$store.getters.getUser+'/'+(index+numPerPage*(pg-1))+item.id+'.jpg)'}"
             >
               <span class="both-block"></span>
             </span>
@@ -56,7 +56,7 @@
 //:style="{backgroundImage: 'url(./other/' + (item==null?'':item.bkg) + '.jpg)'}"
 import Vue from "vue";
 import { ajax } from "../ajax";
-import { phpPath,gameSetting,DebugLogEnable } from "../lappdefine";
+import { phpPath,DebugLogEnable } from "../lappdefine";
 export default Vue.extend({
   data() {
     return {
@@ -65,7 +65,6 @@ export default Vue.extend({
       pageSum: DebugLogEnable?8:3,
       saves: [],
       phpPath:phpPath,
-      gameName:gameSetting.gameName
     };
   },
   props: ["setting"],
@@ -96,7 +95,7 @@ export default Vue.extend({
         url: phpPath + "t_findsave.php",
         dataType: "json",
         data: JSON.stringify({
-          game: gameSetting.gameName,
+          game: this.$store.getters.gameName,
           user:this.$store.getters.getUser,
         })
       }).then(

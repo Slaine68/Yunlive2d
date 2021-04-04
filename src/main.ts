@@ -51,9 +51,12 @@ const store = new Vuex.Store({
     game:{
       title:'',
       charTitle:'',
-      autoClick:false,
+      charactorMap:{},
+      charactorColor:{},
+      charaDefaultPosition:{},
+      gameEmotion:{}
     },
-    audio:'yes'
+    audio:'yes',
   },
   getters:{
     isSettingActive(state){
@@ -88,6 +91,21 @@ const store = new Vuex.Store({
     },
     getUser(state){
       return state.user;
+    },
+    gameName(state){
+      return state.game.title;
+    },
+    charactorMap(state){
+      return state.game.charactorMap
+    },
+    charactorColor(state){
+      return state.game.charactorColor;
+    },
+    charaDefaultPosition(state){
+      return state.game.charaDefaultPosition;
+    },
+    gameEmotion(state){
+      return state.game.gameEmotion;
     },
     audio(state){
       return state.audio;
@@ -158,6 +176,15 @@ const store = new Vuex.Store({
     },
     setUser(state,pre:string){
       state.user=pre;
+    },
+    setGame(state,pre:string){
+      state.game.title=pre;
+    },
+    setGameObj(state,obj:object){
+      state.game.charactorMap = obj['charactorMap'];
+      state.game.charactorColor = obj['charactorColor'];
+      state.game.charaDefaultPosition = obj['charaDefaultPosition'];
+      state.game.gameEmotion = obj['gameEmotion'];
     },
     autoReadSpead(state,num:number){
       state.settingView.autoReadSpead = num;

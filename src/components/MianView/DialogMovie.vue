@@ -5,12 +5,11 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { charactorColor } from "../../lappdefine";
 export default Vue.extend({
   props: ["text", "name", "opa"],
   computed: {
     getcolor: function() {
-      return "outline_" + charactorColor[this.name]; //this.name;
+      return "outline_" + this.$store.getters.charactorColor[this.name]; //this.name;
     }
   }
 });

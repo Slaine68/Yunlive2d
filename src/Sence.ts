@@ -1,6 +1,6 @@
-import { charactorMap } from './lappdefine';
 import { ajax } from './ajax';
 import { LAppLive2DManager } from "./lapplive2dmanager";
+import {LAppCommonModel} from './lappcommonmodel';
 
 export class Sence {
 
@@ -20,16 +20,18 @@ export class Sence {
         this.nowi = 0;
         this.nowChar = '';//当前角色名
         this.charName = chaName;
+        this.gameName = '';
     }
 
-    public initByAjax(): Promise<void> {
+    public initByAjax(game): Promise<void> {
+        this.gameName = game;
         return new Promise((resolve, reject) => {
             ajax({
                 type: "get",
-                url: "/txt/" + this.charName + ".txt",
+                url: `../Resources/${game}/txt/${this.charName}.txt`,
                 dataType: "text"
             }).then((data) => {
-                //this.downLoad(this.dealAudioTexts(data.split("\r\n")));
+                LAppCommonModel.getInstance();
                 LAppLive2DManager.getInstance().initCharactorsByList(this.dealTexts(data.split("\r\n")))
                 .then(()=>{
                     this.nowChar = this.chas[0];
@@ -40,49 +42,6 @@ export class Sence {
                 reject();
             })
         })
-    }
-
-    private dealAudioTexts(datas: string[]):object {
-        /**
-         * {
-         * 'yoru':['','']
-         * }
-         */
-        let temp_char: object = {};
-        let char = '';
-        datas.forEach((item)=>{
-            item = item.trimLeft();
-            switch (item[0]) {
-                case '【':
-                    let txt = item.slice(1, item.length - 1);
-                    let real = this.getCharRealWithCh(txt);
-                    char = this.getCharReal(real);
-                    if(char && temp_char[char] === undefined){
-                        temp_char[char] = [];
-                    }
-                    break;
-                case '[':
-                case '`':
-                case '{':
-                case '/':
-                case '*':
-                case '<':
-                case '>':
-                    break;
-                default:
-                    let arr = item.split('-');
-                    if(temp_char[char]){
-                        if (arr.length >= 2) {
-                        temp_char[char].push(arr[1]);
-                        }
-                        else{
-                            temp_char[char].push(arr[0]);
-                        }
-                    }
-                    
-            }
-        })
-        return temp_char;
     }
 
     private downLoad(content){
@@ -110,7 +69,7 @@ export class Sence {
             switch (item[0]) {
                 case '【':
                     this.chas[nowi] = item.slice(1, item.length - 1);
-                    let real = this.getCharRealWithCh(this.chas[nowi]);
+                    let real = this.getCharReal(this.chas[nowi]);
                     char = this.getCharReal(real);
                     if (real && !temp_real.includes(real)) {
                         temp_real.push(real);
@@ -181,21 +140,6 @@ export class Sence {
     }
 
     public getCharReal(name?: string): string {
-        let txt = name ? name : this.nowChar;
-        if (txt) {
-            let arr = txt.split('-');
-            let real;
-            if (arr.length >= 2) {
-                real = arr[1];
-            }
-            else {
-                real = arr[0];
-            }
-            return charactorMap[real];
-        }
-        else return null;
-    }
-    public getCharRealWithCh(name?: string): string {
         let txt = name ? name : this.nowChar;
         if (txt) {
             let arr = txt.split('-');
@@ -288,4 +232,5 @@ export class Sence {
     charName: string; //章节id(w2)
     title: string;//章节标题(第二章·111)
     nowChar: string;//当前角色全名【xxx-yyy】
+    gameName: string;
 }

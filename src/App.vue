@@ -40,7 +40,7 @@
         id="music"
         ref="music"
         loop
-        :src="'./music/' + dyn_data.music + '.mp3'"
+        :src="'../Resources/'+ $store.getters.gameName +'/music/' + dyn_data.music + '.mp3'"
         preload="auto"
       >
         主音乐
@@ -56,7 +56,7 @@
       <audio
         id="voical"
         ref="speak"
-        :src="'./speak/' + speak + '.wav'"
+        :src="'../Resources/'+ $store.getters.gameName +'/speak/' + speak + '.wav'"
         preload="auto"
       >
         语音
@@ -127,9 +127,6 @@ import { LAppDelegate } from "./lappdelegate";
 import { LAppLive2DManager } from "./lapplive2dmanager";
 import { ajax } from "./ajax";
 import {
-  gameSetting,
-  charaDefaultPosition,
-  gameEmotion,
   States,
   DELAY_TIME,
   StatesDeal,
@@ -199,7 +196,7 @@ export default Vue.extend({
       speak: "",
       choose: [],
       //章节场景实例
-      sence: new Sence(gameSetting.startChap),
+      sence: new Sence("w0"),
       live2DManager: null,
       //高和宽
       width: 1920,
@@ -297,7 +294,7 @@ export default Vue.extend({
     };
 
     if (DebugLogEnable) {
-      this.handleMessage({ data: { user: "yunming" } });
+      this.handleMessage({ data: { user: "yunming", game: "yulou" } });
     } else {
       window.addEventListener("message", this.handleMessage);
     }
@@ -348,7 +345,7 @@ export default Vue.extend({
           this.click = true;
           if (param == "tap") {
             this.onTap();
-          } else console.log("错误：" + param);
+          } else console.trace("错误：" + param);
         });
     },
     quickTap() {
@@ -430,7 +427,7 @@ export default Vue.extend({
           this.live2DManager.clearActiveModel();
           return;
         }
-        let getRealName = this.sence.getCharReal(origiChars);
+        let getRealName = this.getCharReal(origiChars);
         if (!getRealName || !this.dyn_data.charStatus[getRealName]) return;
         switch (this.dyn_data.charStatus[getRealName].position) {
           case "left":
@@ -637,7 +634,7 @@ export default Vue.extend({
       return new Promise((resolve) => {
         for (let name of chars) {
           LAppLive2DManager.getInstance().changeSliper(
-            this.sence.getCharReal(name)
+            this.getCharReal(name)
           );
           this._changeModel(name);
         }
@@ -648,7 +645,7 @@ export default Vue.extend({
     _dealCodeRight(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
-          let realName = this.sence.getCharReal(c);
+          let realName = this.getCharReal(c);
           if (!this.dyn_data.charStatus[realName]) {
             this.dyn_data.charStatus[realName] = { position: "right" };
           }
@@ -661,7 +658,7 @@ export default Vue.extend({
     _dealCodeLeft(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
-          let realName = this.sence.getCharReal(c);
+          let realName = this.getCharReal(c);
           if (!this.dyn_data.charStatus[realName]) {
             this.dyn_data.charStatus[realName] = { position: "left" };
           }
@@ -674,7 +671,7 @@ export default Vue.extend({
     _dealCodeMiddle(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let c of chars) {
-          let realName = this.sence.getCharReal(c);
+          let realName = this.getCharReal(c);
           if (!this.dyn_data.charStatus[realName]) {
             this.dyn_data.charStatus[realName] = { position: "middle" };
           }
@@ -688,7 +685,7 @@ export default Vue.extend({
       return new Promise((resolve) => {
         if (this.$store.getters.isAudioPlay) {
           for (let audio of audios) {
-            this.$store.commit('playAudio',audio);
+            this.$store.commit("playAudio", audio);
           }
         }
         resolve(delay);
@@ -800,7 +797,7 @@ export default Vue.extend({
         setTimeout(() => {
           this.sence = null;
           this.sence = new Sence(chapter);
-          this.sence.initByAjax().then(() => {
+          this.sence.initByAjax(this.$store.getters.gameName).then(() => {
             r();
             //初始化全局变量
             this.$store.commit("charTitle", this.sence.title);
@@ -867,8 +864,8 @@ export default Vue.extend({
     //reset代码
     _dealCodeReset(params: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
-        for (let item in charaDefaultPosition) {
-          for (let char of charaDefaultPosition[item]) {
+        for (let item in this.$store.getters.charaDefaultPosition) {
+          for (let char of this.$store.getters.charaDefaultPosition[item]) {
             if (this.dyn_data.charStatus[char]) {
               this.dyn_data.charStatus[char].position = item;
             } else {
@@ -889,7 +886,7 @@ export default Vue.extend({
     //存档
     saveUserData(index: number) {
       this.getSaveData(index).then((d) => {
-        d.game = gameSetting.gameName;
+        d.game = this.$store.getters.gameName;
         d.user = this.$store.getters.getUser;
         console.log(d.user);
         ajax({
@@ -993,7 +990,7 @@ export default Vue.extend({
         url: phpPath + (index ? "t_load.php" : "t_findLastSave.php"),
         dataType: "json",
         data: JSON.stringify({
-          game: gameSetting.gameName,
+          game: this.$store.getters.gameName,
           user: this.$store.getters.getUser,
           position: index,
         }),
@@ -1041,22 +1038,37 @@ export default Vue.extend({
         }
       );
     },
+    //读取该游戏个性化配置
+    readGameObj(game) {
+      ajax({
+        type: "get",
+        url: `../Resources/${game}/init.json`,
+        dataType: "json",
+      }).then((data) => {
+        try {
+          data = JSON.parse(data);
+          this.$store.commit("setGameObj", data);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    },
     //从第一章初始化游戏
     initGameByFirstCharp() {
-      let pro1 = this.showMaskWithTitle(gameSetting.startChap);
+      let pro1 = this.showMaskWithTitle("w0");
       let pro2 = new Promise<void>((r2) => {
         setTimeout(() => {
           r2();
         }, 4000);
       });
       Promise.all([pro1, pro2]).then(() => {
-        for (let item in charaDefaultPosition) {
-          for (let char of charaDefaultPosition[item]) {
+        for (let item in this.$store.getters.charaDefaultPosition) {
+          for (let char of this.$store.getters.charaDefaultPosition[item]) {
             this.dyn_data.charStatus[char] = { position: item };
           }
         }
-        for (let item in gameEmotion) {
-          this.dyn_data.emotions[item] = gameEmotion[item];
+        for (let item in this.$store.getters.gameEmotion) {
+          this.dyn_data.emotions[item] = this.$store.getters.gameEmotion[item];
         }
         this.mask.showtitle = false;
         setTimeout(() => {
@@ -1099,18 +1111,19 @@ export default Vue.extend({
         this.height = w / b;
       }
     },
+    getCharReal(char){
+      return this.$store.getters.charactorMap[this.sence.getCharReal(char)];
+    },
     handleMessage(event) {
       const data = event.data;
       if (data.user) {
         this.$store.commit("setUser", data.user);
+        this.$store.commit("setGame", data.game);
         console.log("user变为" + data.user);
         this.loadUserData();
+        this.readGameObj(data.game);
         this.$refs.settingView.refreshLoads();
       }
-      console.log("接到消息");
-      console.log(data);
-      // //读取最近的存档
-      //alert(data.user)
     },
   },
   //   析构函数

@@ -12,12 +12,11 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { charactorColor } from "../../lappdefine";
 export default Vue.extend({
   props: ["text", "name", "opa", "font", "fontfamily", "anime"],
   computed: {
     getcolor: function() {
-      return "blocks_" + charactorColor[this.name]; //this.name;
+      return "blocks_" + this.$store.getters.charactorColor[this.name]; //this.name;
     }
   }
 });

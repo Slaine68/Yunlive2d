@@ -7,7 +7,7 @@ import CubismMotion = cubismmotion.CubismMotion;
 import csmMap = csmmap.csmMap;
 import ACubismMotion = acubismmotion.ACubismMotion;
 import CubismUserModel = cubismusermodel.CubismUserModel;
-import { ResourcesPath } from './lappdefine';
+import vue from './main';
 export let s_instance: LAppCommonModel = null;
 
 export class LAppCommonModel extends CubismUserModel {
@@ -31,7 +31,7 @@ export class LAppCommonModel extends CubismUserModel {
     private initMotion() {
         let motionNames = ['a','a2','b','bs','j','ns','n','s','sw','w','w2','sp','bo'];
         for (let name of motionNames) {
-            fetch(`${ResourcesPath}common/${name}.motion3.json`)
+            fetch(`./Resources/${vue.$store.getters.gameName}/live2d/common/${name}.motion3.json`)
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => {
                     const tmpMotion: CubismMotion = this.loadMotion(

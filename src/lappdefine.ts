@@ -22,9 +22,6 @@ export const ViewLogicalMaxRight = 2.0;
 export const ViewLogicalMaxBottom = -2.0;
 export const ViewLogicalMaxTop = 2.0;
 
-// 相対パス
-export const ResourcesPath = './Resources/';
-
 // モデル定義---------------------------------------------
 
 // 外部定義ファイル（json）と合わせる
@@ -47,98 +44,6 @@ export const DebugTouchLogEnable = false;
 
 // Frameworkから出力するログのレベル設定
 export const CubismLoggingLevel: LogLevel = LogLevel.LogLevel_Verbose;
-
-export var gameSetting={
-    startChap:"w0",
-    gameName:'yunweb',
-    user:''
-};
-
-//角色映射图
-export const charactorMap = {
-    '霜阳明':'akira',
-    '苹果': 'apple',
-    '玉宁':'baihan',
-    '青寒': 'aoi',
-    '青寒x': 'aoi-x',
-    '碧寒': 'bi',
-    '才英':'caiying',
-    '辉夜长青':'changqing',
-    '辉夜长邪':'changye',
-    '林正央':'lin',
-    '崇武将军':'chongwu',
-    '风晴':'fengqing',
-    '风禾':'fenghe',
-    '绯夜':'firebird',
-    '军相':'firebird',
-    '冬月':'fuyu',
-    '冬月x':'fuyu-x',
-    '晴夕':'haru',
-    '上官星展': 'hoshi',
-    '鲸': 'jing',
-    '秦江淮': 'kawa',
-    '若风':'kaze',
-    '金寒': 'kin',
-    '风月': 'kin',
-    '金寒y': 'kiny',
-    '露露': 'lulu',
-    '夏月':'natsu',
-    '黑阳':'kuro',
-    '欧阳芷谙':'oyang',
-    '商辰':'shangchen',
-    '霜初':'shuangchu',
-    '霜阳初':'shuangyangchu',
-    '霜阳麒':'shuangqi',
-    '霜阳蠡竹':'lizhu',
-    '上官月展':'tsuki',
-    '上官十五':'shiwu',
-    '上官辰巳':'chensi',
-    '李冥夜': 'yoru',
-    '盲剑':'ken',
-    '梦羽':'yume',
-    '白羽':'haku',
-    '星展':'shoshi',
-    '战颜将军':'zhanyan',
-    '葛菁芷':'jingzhi',
-    '许文政':'wenzheng',
-    '烟牙':'smoke',
-    '遥谙':'yaoan',
-    '芋圆':'yuyuan',
-    'cglive':'cglive',
-};
-
-
-//角色映射图
-export const charactorColor = {
-    '青寒': 'green',
-    '碧寒': 'green',
-    '上官星展': 'blue',
-    '晴夕': 'pink',
-    '若风': 'gold',
-    '金寒': 'yellow',
-    '李冥夜': 'black',
-    '苹果':'red',
-    '霜初':'red',
-    '军相':'red',
-    '雷风夜':'brown',
-};
-
-//角色默认位置映射
-export const charaDefaultPosition = {
-    'left': ['apple','kin','kiny','chongwu','kaze','jing','shuangqi','caiying','lin','yuyuan','haku','shiwu','bi','chensi','shoshi','changye','oyang'],
-    'middle': ['aoi','aoi-x','yoru','tsuki','firebird','lulu','shuangchu','shangchen','fengqing','fuyu','cglive','akira','baihan','changqing','shuangyangchu'],
-    'right': ['hoshi','zhanyan','haru','yume','natsu','kuro','kawa','fenghe','smoke','yaoan','ken','jingzhi','lizhu','wenzheng'],
-};
-
-//游戏变量初始值
-export const gameEmotion={
-    '青寒':0,
-    '金寒':0,
-    '黑暗度':0,
-    '真相度':0,
-    '周目':1,
-    '信物收集':0
-}
 
 //游戏状态机
 export enum States{

@@ -115,9 +115,6 @@ export class LAppView {
     const width: number = canvas.width;
     const height: number = canvas.height;
 
-    const textureManager = LAppDelegate.getInstance().getTextureManager();
-    const resourcesPath = LAppDefine.ResourcesPath;
-
     // 非同期なのでコールバック関数を作成
     const initBackGroundTexture = (textureInfo: TextureInfo): void => {
       const x: number = width * 0.5;
