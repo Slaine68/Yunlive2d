@@ -331,11 +331,11 @@ export default Vue.extend({
           }
           //更换dialog及文字
           this.$refs.dialog.changeDialog().then(() => {
-            this.sence.setNowiAdd();
             //约定下次自动点击
             if (this.autoClick) {
               this.autoClickDo();
             }
+            this.sence.setNowiAdd();
             setTimeout(() => {
               this.click = true;
             }, delay);
@@ -409,10 +409,10 @@ export default Vue.extend({
         //快速：1-4s,慢速: 3-6s
         const spd = 10 - this.$store.getters.autoReadSpead;
         const time = Math.max(
-          1500 + spd * 300,
-          this.sence.getText().length * (80 + spd * 8)
+          1500 + spd * 100,
+          this.sence.getText().length * (100 + spd * 4)
         );
-        this.autoTimer = Math.min(time, 4000 + spd * 300);
+        this.autoTimer = Math.min(time, 4000 + spd * 200);
         this.$refs.compview.activeAnime();
         this.autoClkSettimeFuncr = setTimeout(() => {
           this.onTap();
@@ -423,12 +423,11 @@ export default Vue.extend({
     _changeModel(origiChars?: string, emo?: string): void {
       if (origiChars) {
         //如果以-结尾，无active者
-        if (origiChars.match(/\-$/g)) {
+        let getRealName = this.getCharReal(origiChars);
+        if (!getRealName || !this.dyn_data.charStatus[getRealName] || origiChars.match(/\-$/g)) {
           this.live2DManager.clearActiveModel();
           return;
         }
-        let getRealName = this.getCharReal(origiChars);
-        if (!getRealName || !this.dyn_data.charStatus[getRealName]) return;
         switch (this.dyn_data.charStatus[getRealName].position) {
           case "left":
             this.live2DManager.changeLeftModel(getRealName);
