@@ -255,4 +255,11 @@ export default Vue.extend({
   position: absolute;
   bottom: 0px;
 }
+// 手机
+@media (max-width: 1000px) {
+  .middleViews{
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+}
 </style>

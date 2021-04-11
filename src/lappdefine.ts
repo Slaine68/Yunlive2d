@@ -73,13 +73,13 @@ export const StatesDeal = {
     'clickable': [States.NORMAL,States.MOVIE,States.MOVIEPRO]
 };
 //部署的时候：
-//export const phpPath="../newphp/";
+export const phpPath="../newphp/";
 //单独起它的时候：
-export const phpPath="http://localhost:80/newphp/";
+//export const phpPath="http://localhost:80/newphp/";
 
 //false内容：
 //不打印log
 //存档变成3页
 //只有接受user才能进游戏
 //打开回到原点按钮
-export const DebugLogEnable = true;
+export const DebugLogEnable = false;

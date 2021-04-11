@@ -30,7 +30,7 @@ export default Vue.extend({
       name: "",
       text: "",
       opacity: 1,
-      font: 0,
+      font: 0.1,
       fontfamily: 0,
       anime: false,
     };

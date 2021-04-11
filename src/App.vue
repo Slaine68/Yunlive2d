@@ -1,13 +1,19 @@
 <template>
   <div
     id="mainblock"
-    class="flex-col-center"
+    class="flex-col-center full-screen"
     :style="{
       width: width + 'px',
       height: height + 'px',
       fontFamily: 'settingfont',
     }"
   >
+    <!--     
+    :style="{
+      width: width + 'px',
+      height: height + 'px',
+      fontFamily: 'settingfont',
+    }" -->
     <!-- 存档视图 1001 -->
     <transition :name="$store.getters.isFlower ? 'slide-fade' : ''">
       <SettingView
@@ -40,7 +46,13 @@
         id="music"
         ref="music"
         loop
-        :src="'../Resources/'+ $store.getters.gameName +'/music/' + dyn_data.music + '.mp3'"
+        :src="
+          './Resources/' +
+          $store.getters.gameName +
+          '/music/' +
+          dyn_data.music +
+          '.mp3'
+        "
         preload="auto"
       >
         主音乐
@@ -56,7 +68,9 @@
       <audio
         id="voical"
         ref="speak"
-        :src="'../Resources/'+ $store.getters.gameName +'/speak/' + speak + '.wav'"
+        :src="
+          './Resources/' + $store.getters.gameName + '/speak/' + speak + '.wav'
+        "
         preload="auto"
       >
         语音
@@ -271,10 +285,10 @@ export default Vue.extend({
         //h，帮助
         if (
           this.statu == States.NORMAL &&
-          this.$store.getters.isSettingActive
+          !this.$store.getters.isSettingActive
         ) {
-          this.isHelpShow = !this.isHelpShow;
-        } else this.isHelpShow = false;
+          this.$refs.compview.switchCompsOpen();
+        }
       } else if (e.keyCode == 77) {
         //m，音乐
         this.$store.commit("musicPlay", !this.$store.getters.isMusicPlay);
@@ -292,12 +306,7 @@ export default Vue.extend({
         this.quickReTap();
       }
     };
-
-    if (DebugLogEnable) {
-      this.handleMessage({ data: { user: "yunming", game: "yulou" } });
-    } else {
-      window.addEventListener("message", this.handleMessage);
-    }
+    this.initUsers();
     //this.iframeWin = this.$refs.iframe.contentWindow;
   },
   //方法
@@ -424,7 +433,11 @@ export default Vue.extend({
       if (origiChars) {
         //如果以-结尾，无active者
         let getRealName = this.getCharReal(origiChars);
-        if (!getRealName || !this.dyn_data.charStatus[getRealName] || origiChars.match(/\-$/g)) {
+        if (
+          !getRealName ||
+          !this.dyn_data.charStatus[getRealName] ||
+          origiChars.match(/\-$/g)
+        ) {
           this.live2DManager.clearActiveModel();
           return;
         }
@@ -632,9 +645,7 @@ export default Vue.extend({
     _dealCodeShow(chars: string[], delay: number): Promise<number> {
       return new Promise((resolve) => {
         for (let name of chars) {
-          LAppLive2DManager.getInstance().changeSliper(
-            this.getCharReal(name)
-          );
+          LAppLive2DManager.getInstance().changeSliper(this.getCharReal(name));
           this._changeModel(name);
         }
         resolve(delay);
@@ -789,7 +800,7 @@ export default Vue.extend({
       this.mask.color = "black";
       this.mask.title = title;
       this.mask.showtitle = true;
-      this.$store.commit("setPresent", 0);
+      this.$store.commit("resetPresent");
       this.mask.opa = 1;
       //1后
       return new Promise((r) => {
@@ -887,7 +898,6 @@ export default Vue.extend({
       this.getSaveData(index).then((d) => {
         d.game = this.$store.getters.gameName;
         d.user = this.$store.getters.getUser;
-        console.log(d.user);
         ajax({
           type: "post",
           url: phpPath + "t_save.php",
@@ -982,8 +992,6 @@ export default Vue.extend({
     //读档/初始读最近的档
     //
     loadUserData(index?: number) {
-      console.log(this.$store.getters.getUser);
-
       ajax({
         type: "post",
         url: phpPath + (index ? "t_load.php" : "t_findLastSave.php"),
@@ -1041,7 +1049,7 @@ export default Vue.extend({
     readGameObj(game) {
       ajax({
         type: "get",
-        url: `../Resources/${game}/init.json`,
+        url: `./Resources/${game}/init.json`,
         dataType: "json",
       }).then((data) => {
         try {
@@ -1102,27 +1110,34 @@ export default Vue.extend({
     },
     //重新计算大小
     changeWH(w, h, b) {
-      if (w / h > b) {
-        this.height = h;
-        this.width = h * b;
-      } else {
-        this.width = w;
-        this.height = w / b;
-      }
+      this.height = h;
+      this.width = w;
+      // if (w / h > b) {
+      //   this.height = h;
+      //   this.width = h * b;
+      // } else {
+      //   this.width = w;
+      //   this.height = w / b;
+      // }
     },
-    getCharReal(char){
+    getCharReal(char) {
       return this.$store.getters.charactorMap[this.sence.getCharReal(char)];
     },
-    handleMessage(event) {
-      const data = event.data;
-      if (data.user) {
-        this.$store.commit("setUser", data.user);
-        this.$store.commit("setGame", data.game);
-        console.log("user变为" + data.user);
-        this.loadUserData();
-        this.readGameObj(data.game);
-        this.$refs.settingView.refreshLoads();
+    initUsers() {
+      let game = "yulou";
+      if ((parent as any).gamevm) {
+        (parent as any).gamevm.$store.dispatch("sureLogin").then((code) => {
+          this.$store.commit("setUser", code);
+        });
+      } else if (DebugLogEnable) {
+        this.$store.commit("setUser", "yunming");
+      } else {
+        return;
       }
+      this.$store.commit("setGame", game);
+      this.loadUserData();
+      this.readGameObj(game);
+      this.$refs.settingView.refreshLoads();
     },
   },
   //   析构函数

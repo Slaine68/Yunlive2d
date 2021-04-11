@@ -26,8 +26,7 @@
       :callback="changeAudio"
     ></settingButton>
 
-    <header>语音设置</header>
-    <!-- 大小的滑动条，开关 -->
+    <!-- <header>语音设置</header>
     <settingSlide 
       :width="'70%'"
       :unusable="!$store.getters.isVoicalPlay"
@@ -37,7 +36,7 @@
     <settingButton
       :state="$store.getters.isVoicalPlay"
       :callback="changeVoical"
-    ></settingButton>
+    ></settingButton> -->
 
     <header>自动翻页速度</header>
     <!-- 滑动条 -->
@@ -47,7 +46,7 @@
       :maxValue="10"
       @changevalue="autoReadSpead"/>
 
-    <header>性能模式</header>
+    <header class="only-btn">性能模式</header>
     <settingButton
       :state="$store.getters.isFlower"
       :callback="switchFlower"
@@ -95,5 +94,8 @@ export default {
 <style scoped lang="less">
 header{
   padding-top: 0.6rem;
+}
+.only-btn{
+  padding-bottom: 0.5rem;
 }
 </style>

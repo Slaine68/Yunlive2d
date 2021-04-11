@@ -158,7 +158,7 @@ export class LAppLive2DManager {
         this.changeSliper(chara);
       }
       //此图像并非null，可当前的人物并非是它
-      else if(model!=this._models[chara]){
+      else if (model != this._models[chara]) {
         this.changeSliper(chara);
       }
       this.changeActiveModel(this._models[chara]);
@@ -366,26 +366,44 @@ export class LAppLive2DManager {
   }
 
 
-  public initCharactorsByList(chars: string[]): Promise<void> {
+  public initCharactorsByList(chars: string[], bkgs: string[]): Promise<void> {
     //释放所有资源,待优化
     this.clearAll();
     //this.releaseAllModel();
     return new Promise(resolve => {
-      let count = 0;
-      vue.$store.commit("setPresent", 0);
-
+      vue.$store.commit("setTotalPresent", chars.length + bkgs.length);
       for (let item of chars) {
-        
         this.changeScene(item, vue.$store.getters.charactorMap[item]).then(() => {
-          count++;
-          vue.$store.commit("setPresent", Math.round(count / chars.length * 100));
-          if (count == chars.length) {
+          vue.$store.commit("addPresent");
+          if (vue.$store.getters.getPresent >= 100) {
             //完成全部加载
             this._active_model = this._left_model;
             resolve();
           }
         })
       }
+      for (let bkg of bkgs) {
+        this.newImg(bkg).then(() => {
+          vue.$store.commit("addPresent");
+          if (vue.$store.getters.getPresent >= 100) {
+            //完成全部加载
+            this._active_model = this._left_model;
+            resolve();
+          }
+        })
+      }
+    })
+  }
+  private newImg(src): Promise<void> {
+    return new Promise((resolve) => {
+      let img = new Image();
+      img.onload = function () {
+        resolve();
+      }
+      img.onerror = function () {
+        resolve();
+      }
+      img.src = `./Resources/${vue.$store.getters.gameName}/bkg/${src}.jpg`;
     })
   }
 

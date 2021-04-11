@@ -60,11 +60,11 @@ export class LAppDelegate {
     let w:number =document.documentElement.clientWidth;
     let h:number = document.documentElement.clientHeight;
     let b:number = 1.77;
-    if (w / h > b) {
-      w = h * b;
-    } else {
-      h = w / b;
-    }
+    // if (w / h > b) {
+    //   w = h * b;
+    // } else {
+    //   h = w / b;
+    // }
     canvas.height = h;
     canvas.width = w;
     let hs = h+'px';

@@ -1,11 +1,16 @@
 <template>
   <div
     id="dialog-normal"
-    :class="['dialog','anime'+anime]"
-    :style="{opacity:opa,fontSize:(1+font)+'rem',fontFamily:'dialogfont'}"
+    :class="['dialog', 'anime' + anime]"
+    :style="{
+      opacity: opa,
+      fontSize: 1 + font + 'rem'
+    }"
   >
-    <div id="dialogName" :class="getcolor" v-show="name.length>0">{{name}}</div>
-    <div id="dialog_padding" :class="{sideSpeack:name.length==0}">
+    <div id="dialogName" :class="getcolor" v-show="name.length > 0">
+      {{ name }}
+    </div>
+    <div id="dialog_padding" :class="{ sideSpeack: name.length == 0 }">
       <div id="dialogText" class="dialogActiveText" v-html="text"></div>
     </div>
   </div>
@@ -15,10 +20,10 @@ import Vue from "vue";
 export default Vue.extend({
   props: ["text", "name", "opa", "font", "fontfamily", "anime"],
   computed: {
-    getcolor: function() {
+    getcolor: function () {
       return "blocks_" + this.$store.getters.charactorColor[this.name]; //this.name;
-    }
-  }
+    },
+  },
 });
 </script>
 <style scoped lang="less">
@@ -34,18 +39,14 @@ export default Vue.extend({
 }
 
 #dialog_padding {
-  height: 8rem;
   position: relative;
   top: -1px;
-  padding: 1rem 2rem 1rem 3rem;
   box-sizing: border-box;
   background: repeating-linear-gradient(35deg, #6161610a, transparent 8rem),
     repeating-linear-gradient(145deg, #a5a5a508, transparent 8rem), #252525eb;
 }
 
 #dialogName {
-  height: 2rem;
-  line-height: 2rem;
   padding-left: 3rem;
   clip-path: polygon(
     9rem 0%,
@@ -80,7 +81,7 @@ export default Vue.extend({
 .blocks(undefined, @white);
 
 .animeright {
-  animation: dialogmoveright 0.3s cubic-bezier(0.43, 0.24, 0.42, 0.98);;
+  animation: dialogmoveright 0.3s cubic-bezier(0.43, 0.24, 0.42, 0.98);
   #dialog_padding {
     //animation: dialogbottom 0.3s ease-out;
     #dialogText {
@@ -121,6 +122,45 @@ export default Vue.extend({
     border-top: #eaeaead9 0.2rem solid;
   }
 }
+// 手机
+@media (max-width: 1000px) {
+  #dialog_padding {
+    height: 6.5rem;
+    padding: 0.5rem 2rem 0.5rem 3rem;
+  }
+  #dialogName {
+    height: 1.5rem;
+    line-height: 1.5rem;
+  }
+  @keyframes dialogbottom {
+    0% {
+      height: 2rem;
+    }
+    100% {
+      height: 6.5rem;
+    }
+  }
+}
+@media (min-width: 1001px) {
+  #dialog_padding {
+    height: 8rem;
+    padding: 1rem 2rem 1rem 3rem;
+  }
+  #dialogName {
+    height: 2rem;
+    line-height: 2rem;
+  }
+  @keyframes dialogbottom {
+    0% {
+      height: 3rem;
+      padding-top: 4rem;
+    }
+    100% {
+      height: 8rem;
+      padding-top: 1rem;
+    }
+  }
+}
 @keyframes dialogmoveright {
   0% {
     opacity: 0;
@@ -136,7 +176,7 @@ export default Vue.extend({
   }
 }
 @keyframes dialogmoveleft {
-    0% {
+  0% {
     opacity: 0;
   }
   20% {
@@ -148,11 +188,11 @@ export default Vue.extend({
     opacity: 1;
     padding-right: 0rem;
   }
-
 }
 @keyframes dialogmovemiddle {
   0% {
     opacity: 0;
+    padding-bottom: 2rem;
   }
   20% {
     opacity: 0;
@@ -185,16 +225,6 @@ export default Vue.extend({
   }
   100% {
     opacity: 1;
-  }
-}
-@keyframes dialogbottom {
-  0% {
-    height: 3rem;
-    padding-top: 4rem;
-  }
-  100% {
-    height: 9rem;
-    padding-top: 1rem;
   }
 }
 </style>

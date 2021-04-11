@@ -31,7 +31,8 @@ const store = new Vuex.Store({
     //主状态
     statu:States.NORMAL,
     //加载百分比
-    present:100,
+    present:0,
+    totalPresent:1,
     //设置页状态
     settingView:{
       active:false,
@@ -42,7 +43,7 @@ const store = new Vuex.Store({
       audioVolum:0.8,
       isVoicalPlay:false,
       voicalVolum:0.7,
-      isFlower:false,//是否开启花里胡哨特效
+      isFlower:true,//是否开启花里胡哨特效
       autoReadSpead: 5, //自动速度，0-10
     },
     //用户名称
@@ -87,7 +88,7 @@ const store = new Vuex.Store({
       return state.settingView.isFlower;  
     },
     getPresent(state){
-      return state.present;
+      return Math.round(state.present / state.totalPresent * 100);
     },
     getUser(state){
       return state.user;
@@ -171,8 +172,15 @@ const store = new Vuex.Store({
     switchFlower(state,play:boolean){
       state.settingView.isFlower=play;
     },
-    setPresent(state,pre:number){
-      state.present=pre;
+    addPresent(state){
+      state.present++;
+    },
+    resetPresent(state){
+      state.present=0;
+    },
+    setTotalPresent(state,pre:number){
+      state.present=0;
+      state.totalPresent=pre;
     },
     setUser(state,pre:string){
       state.user=pre;

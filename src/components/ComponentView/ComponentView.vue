@@ -75,7 +75,7 @@ export default {
         {
           name: "帮助（H）",
           type: "active",
-          vars: this.isCompsOpen && this.isHelpShow,
+          vars: this.isCompsOpen ,//&& this.isHelpShow
           callback: this.switchCompsOpen,
         },
       ];

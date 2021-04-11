@@ -36,10 +36,10 @@ export default Vue.extend({
   },
   computed: {
     geturl: function () {
-      return `url("../Resources/${this.$store.getters.gameName}/bkg/${this.firtsBkg}.jpg")`;
+      return `url("./Resources/${this.$store.getters.gameName}/bkg/${this.firtsBkg}.jpg")`;
     },
     geturl2: function () {
-      return `url("../Resources/${this.$store.getters.gameName}/bkg/${this.seconBkg}.jpg")`;
+      return `url("./Resources/${this.$store.getters.gameName}/bkg/${this.seconBkg}.jpg")`;
     },
   },
 });

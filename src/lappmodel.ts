@@ -101,7 +101,7 @@ export class LAppModel extends CubismUserModel {
           this._state = LoadStep.LoadModel;
           // 結果を保存
           this.setupModel(setting);
-          resolve();
+          this._resolve_call = resolve;
         });
     })
 
@@ -421,6 +421,7 @@ export class LAppModel extends CubismUserModel {
           if (this._textureCount >= textureCount) {
             // ロード完了
             this._state = LoadStep.CompleteSetup;
+            this._resolve_call();
           }
         };
 
@@ -910,4 +911,6 @@ export class LAppModel extends CubismUserModel {
   _textureCount: number; // テクスチャカウント
   _motionCount: number; // モーションデータカウント
   _allMotionCount: number; // モーション総数
+
+  _resolve_call: Function;
 }

@@ -1,6 +1,6 @@
 import { ajax } from './ajax';
 import { LAppLive2DManager } from "./lapplive2dmanager";
-import {LAppCommonModel} from './lappcommonmodel';
+import { LAppCommonModel } from './lappcommonmodel';
 
 export class Sence {
 
@@ -28,15 +28,15 @@ export class Sence {
         return new Promise((resolve, reject) => {
             ajax({
                 type: "get",
-                url: `../Resources/${game}/txt/${this.charName}.txt`,
+                url: `./Resources/${game}/txt/${this.charName}.txt`,
                 dataType: "text"
             }).then((data) => {
                 LAppCommonModel.getInstance();
-                LAppLive2DManager.getInstance().initCharactorsByList(this.dealTexts(data.split("\r\n")))
-                .then(()=>{
-                    this.nowChar = this.chas[0];
-                    resolve();
-                });
+                LAppLive2DManager.getInstance().initCharactorsByList(this.dealTexts(data.split("\r\n")), this.bkgs.filter(i => Boolean(i)))
+                    .then(() => {
+                        this.nowChar = this.chas[0];
+                        resolve();
+                    });
             }, () => {
                 console.log("加载章节失败!");
                 reject();
@@ -44,27 +44,27 @@ export class Sence {
         })
     }
 
-    private downLoad(content){
+    private downLoad(content) {
         let obj = '';
-        for(let cha in content){
+        for (let cha in content) {
             obj += `【${cha}】\r\n`;
             obj += content[cha].join('\r\n');
             obj += '\r\n';
         }
         let aEle = document.createElement("a");// 创建a标签
-        let blob = new Blob([obj]); 
-        aEle.download = this.charName+'.txt';// 设置下载文件的文件名
+        let blob = new Blob([obj]);
+        aEle.download = this.charName + '.txt';// 设置下载文件的文件名
         aEle.href = URL.createObjectURL(blob);
         aEle.click();// 设置点击事件
     }
 
-    private dealTexts(datas: string[]):string[] {
+    private dealTexts(datas: string[]): string[] {
         let nowi = 0;
         let frag_start: number[] = [];
         let temp_real: string[] = [];
         let temp_char: object = {};
         let char = '';
-        datas.forEach((item,index)=>{
+        datas.forEach((item, index) => {
             item = item.trimLeft();
             switch (item[0]) {
                 case '【':
@@ -74,7 +74,7 @@ export class Sence {
                     if (real && !temp_real.includes(real)) {
                         temp_real.push(real);
                     }
-                    if(char && temp_char[char] === undefined){
+                    if (char && temp_char[char] === undefined) {
                         temp_char[char] = 0;
                     }
                     break;
@@ -105,7 +105,7 @@ export class Sence {
                 default:
                     temp_char[char] += 1;
                     let arr = item.split('-');
-                    this.speaks[nowi] = String(index+1);
+                    this.speaks[nowi] = String(index + 1);
                     let t = temp_char[char] < 10 ? '0' + temp_char[char] : temp_char[char];
                     this.charSpeaks[nowi] = `${this.charName}/${this.charName}-${char}_${t}`;//w5-kin_1
                     if (arr.length >= 2) {
@@ -122,7 +122,7 @@ export class Sence {
             }
         })
         return temp_real;
-        
+
     }
 
 
@@ -135,15 +135,15 @@ export class Sence {
         return this.nowChar;
     }
 
-    public setCharOrigin(str:string): void {
-        this.nowChar=str;
+    public setCharOrigin(str: string): void {
+        this.nowChar = str;
     }
 
     public getCharReal(name?: string): string {
         let txt = name ? name : this.nowChar;
         if (txt) {
             let arr = txt.split('-');
-            return arr.length >= 2?arr[1]:arr[0];
+            return arr.length >= 2 ? arr[1] : arr[0];
         }
         else return null;
     }
@@ -186,25 +186,25 @@ export class Sence {
         }
     }
 
-    public getAutoFlag(){
+    public getAutoFlag() {
         return this.autoflag;
     }
-    public getAutoFlagReserve(){
-        return  [...this.autoflag].reverse();
+    public getAutoFlagReserve() {
+        return [...this.autoflag].reverse();
     }
 
-    public getSpeak(){
-        return this.charName +'-'+this.speaks[this.nowi];
+    public getSpeak() {
+        return this.charName + '-' + this.speaks[this.nowi];
     }
 
-    public getCharSpeaks(){
+    public getCharSpeaks() {
         return this.charSpeaks[this.nowi];
     }
 
     //寻找现在nowi前面的bkg
     public findPreBkg() {
-        for(let i = this.nowi; i > 0; i--){
-            if(this.bkgs[i]){
+        for (let i = this.nowi; i > 0; i--) {
+            if (this.bkgs[i]) {
                 this.bkgs[this.nowi] = this.bkgs[i];
                 break;
             }
@@ -215,7 +215,7 @@ export class Sence {
         this.setNowi(this.fragment[this.nowi]);
     }
 
-   
+
     texts: string[];//文本
     chas: string[];//角色
     faces: string[];//表情
@@ -227,7 +227,7 @@ export class Sence {
     speaks: string[];//语音
     charSpeaks: string[];//角色语音['青寒 1','金寒 2']
 
-    
+
     nowi: number;//nowi
     charName: string; //章节id(w2)
     title: string;//章节标题(第二章·111)

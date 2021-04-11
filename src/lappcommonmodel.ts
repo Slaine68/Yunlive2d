@@ -29,7 +29,7 @@ export class LAppCommonModel extends CubismUserModel {
 
 
     private initMotion() {
-        let motionNames = ['a','a2','b','bs','j','ns','n','s','sw','w','w2','sp','bo'];
+        let motionNames = ['a','a2','a3','b','bw','bs','j','f','ns','n','s','sw','w','wx','w2','sp','bo'];
         for (let name of motionNames) {
             fetch(`./Resources/${vue.$store.getters.gameName}/live2d/common/${name}.motion3.json`)
                 .then(response => response.arrayBuffer())
@@ -49,7 +49,7 @@ export class LAppCommonModel extends CubismUserModel {
 
                     this._common_motions.setValue(name, tmpMotion);
 
-                });
+                }).catch(e=>{console.log(e)});
         }
     }
 

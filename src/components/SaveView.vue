@@ -440,6 +440,12 @@ export default Vue.extend({
     }
   }
 }
+// 手机
+@media (max-width: 1000px) {
+  #saveBody .saveSmallBlock{
+    height: 45%;
+  }
+}
 @keyframes dispear-and-show {
   0% {
     opacity: 0;

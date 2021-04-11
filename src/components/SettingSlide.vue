@@ -151,4 +151,10 @@ export default {
     background: gray;
   }
 }
+// 手机
+@media (max-width: 1000px) {
+  .slideOuter {
+    padding: 0.5rem 0;
+  }
+}
 </style>
